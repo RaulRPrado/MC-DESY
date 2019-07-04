@@ -1,0 +1,78 @@
+#!/bin/bash
+
+set -o errexit   # abort on nonzero exitstatus
+set -o pipefail  # don't hide errors within pipes
+
+# shellcheck disable=SC1091
+source /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/util.sh
+
+atm="winter"
+zenith="35"
+wobble="0.0"
+n_min=0     # min run
+n_max=200000     # max run (100000) 
+readonly runs_per_job=10
+readonly do_submit="true"
+readonly force="false"
+readonly n_mail=10
+
+# shellcheck disable=SC2068
+collect_arguments 4 atm zenith wobble n_max $@
+
+all_n=$(seq "${n_min}" "${n_max}")
+
+atm=$(validate_atm "${atm}")
+zenith=$(validate_zenith "${zenith}")
+wobble=$(validate_wobble "${wobble}")
+
+njobs=0
+nruns=0
+runs=""
+first_run=""
+# shellcheck disable=SC2086
+last_n=$(echo ${all_n} | awk '{print $NF}')
+for n in ${all_n}; do
+
+    run=$(compute_run "${zenith}" "${n}")
+
+    if [ "${first_run}" = "" ]; then
+        first_run="${run}"
+    fi
+
+    gro_file=$(groptics_file "${run}" "${zenith}" "${atm}" "${wobble}")
+
+    if [ "${force}" = "true" ] && [ -f "${gro_file}" ]; then
+        printf "Removing existing file for run: %s\n" "${run}"
+        remove_file "${gro_file}" || true
+        runs="${runs} ${run}"
+        nruns=$(( nruns + 1 ))
+    elif [ ! -f "${gro_file}" ]; then
+        runs="${runs} ${run}"
+        nruns=$(( nruns + 1 ))
+    fi 
+
+    if [ "${nruns}" = "${runs_per_job}" ] || [ "${n}" = "${last_n}" ]; then
+        send_mail=""
+        if [ "${njobs}" -lt "${n_mail}" ]; then
+            send_mail="-m ae" # splitting is necessary
+        fi
+
+        log_err=$(groptics_log "${first_run}" "${zenith}" "${atm}" "${wobble}" "err")
+        log_out=$(groptics_log "${first_run}" "${zenith}" "${atm}" "${wobble}" "out")
+        remove_file "${log_err}" "${log_out}" || true
+        mkdir -p "$(dirname "${log_out}")"
+
+        printf "Submitting runs: %s\n" "${runs}" >> "${log_out}"
+        
+        if [ "${do_submit}" = "true" ]; then
+            # shellcheck disable=SC2086
+            qsub -P veritas -l s_cpu=6:00:00 -l h_rss=2G ${send_mail} -N "gro_${wobble}" -e "${log_err}" -o "${log_out}" /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/runGrOptics -run "${runs}" -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}"
+        fi
+        
+        nruns=0
+        runs=""
+        njobs=$(( njobs + 1 ))
+        first_run=""
+    fi
+
+done

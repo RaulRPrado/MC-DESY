@@ -1,0 +1,100 @@
+#!/bin/bash
+
+set -o errexit   # abort on nonzero exitstatus
+set -o pipefail  # don't hide errors within pipes
+
+# shellcheck disable=SC1091
+source /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/util.sh
+
+atm="winter"
+zenith="20"
+wobble="0.25"
+n_min=0    # min run
+n_max=100000   # max run (100000) 
+
+# shellcheck disable=SC2068
+collect_arguments 4 atm zenith wobble n_max $@
+
+all_n=$(seq "${n_min}" "${n_max}")
+
+atm=$(validate_atm "${atm}")
+zenith=$(validate_zenith "${zenith}")
+wobble=$(validate_wobble "${wobble}")
+
+bad_runs="lists/gro_runs_Zd${zenith}_${atm}_wobble${wobble}_bad.lis"
+true > "${bad_runs}"
+bad_files="lists/corsika_bad_files_Zd${zenith}_${atm}_wobble${wobble}.lis"
+true > "${bad_files}"
+
+sec_list=""
+size_list=""
+
+sec_file="time.lis"
+true > "${sec_file}"
+size_file="size.lis"
+true > "${size_file}"
+
+for i in ${all_n}; do
+    run=$(compute_run "${zenith}" "${i}")
+
+    gro_file=$(groptics_file "${run}" "${zenith}" "${atm}" "${wobble}")
+    if [ ! -f "${gro_file}" ]; then
+        printf "Not found file: %s\n" "${run}"
+        echo "${run}" >> "${bad_runs}"
+    fi
+
+    log_out=$(groptics_log "${run}" "${zenith}" "${atm}" "${wobble}" "out")
+    if [ -f "${log_out}" ]; then
+
+        prob_runs=$(grep "Problem to unzip file run:" "${log_out}" | awk '{print $NF}' || true)
+
+        if [ "${prob_runs}" != "" ]; then
+            for r in ${prob_runs}; do
+                echo "Bad unzipping " "${r}"        
+                echo "${prob_runs}" >> "${bad_files}"
+            done
+        fi
+
+        sec=$(grep "Seconds:" "${log_out}" | awk '{print $NF}' || true)
+        size=$(grep "CORSIKA size:" "${log_out}" | awk '{print $NF}' || true)
+
+        total_size="0"
+        for s in $size; do
+            total_size=$(( total_size + s ))
+        done
+
+        if [ "${sec}" != "" ]; then
+            sec_list="$sec_list $sec"
+            echo "${sec}" >> "${sec_file}"
+            size_list="$size_list $total_size"
+            echo "${total_size}" >> "${size_file}"
+        else
+            echo "Aborted ${run}"     
+        fi
+
+    fi
+
+done
+
+sum=0
+n=0
+smax=0
+smin=10000000000000
+for s in ${sec_list}; do
+    sum=$(( sum + s ))   
+    n=$(( n + 1 ))
+    smax=$(( smax > s ? smax : s ))
+    smin=$(( smin > s ? s : smin ))
+done
+
+mean=$(( sum / n ))
+
+echo   "==========="
+printf "Runtime for %s jobs \n" "$n" 
+printf "Average: "
+TZ=UTC0 printf '%(%H:%M:%S)T\n' "$mean"
+printf "Min: "
+TZ=UTC0 printf '%(%H:%M:%S)T\n' "$smin"
+printf "Max: "
+TZ=UTC0 printf '%(%H:%M:%S)T\n' "$smax"
+echo   "==========="

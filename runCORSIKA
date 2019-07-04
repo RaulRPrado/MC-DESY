@@ -1,0 +1,198 @@
+#!/bin/bash
+
+set -o errexit   # abort on nonzero exitstatus
+set -o pipefail  # don't hide errors within pipes
+
+SECONDS=0
+
+echo "Starting runCORSIKA"
+
+show_help() {
+   echo ""
+   echo "Syntax: ./runCORSIKA [ args ]"
+   echo "Options:"
+   echo "-n                                      (n number)"
+   echo "-zenith                                 (zenith angle)"
+   echo "-atm                                    (summer/62 or winter/61)"
+   echo "-primary                                (proton only, by now)"
+   echo "-nshow                                  (number of showers)"
+   echo ""
+}
+
+# shellcheck disable=SC1091
+source /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/util.sh
+
+n_run="1"
+zenith=20
+atm="winter"
+primary="proton"
+nshow=1000
+
+while :; do
+    case $1 in
+        -h|-\?|--help)
+            show_help
+            exit
+            ;;
+        -n)
+            n_run=$2
+            shift
+            ;;
+        -zenith)
+            zenith=$2
+            shift
+            ;;
+        -atm)
+            atm=$2
+            shift
+            ;;
+        -primary)
+            primary=$2
+            shift
+            ;;
+        -nshow)
+            nshow=$2
+            shift
+            ;;
+        *)
+            break
+    esac
+    shift
+done
+
+######################
+# Processing arguments
+atm=$(validate_atm "${atm}")
+zenith=$(validate_zenith "${zenith}")
+primary=$(validate_primary "${primary}")
+
+run=$(compute_run "${zenith}" "${n_run}")
+
+#CORSIKA
+export CORSIKA_IO_BUFFER=10GiB
+export CORSIKA_MAX_BUNCHES=10000000000
+
+corsika_file=$(corsika_out_file "${run}" "${zenith}" "${atm}")
+corsika_dir=$(dirname "${corsika_file}")
+mkdir -p "${corsika_dir}"
+mkdir -p "${corsika_dir}/log"
+mkdir -p "${corsika_dir}/input"
+mkdir -p "${corsika_dir}/telfiles"
+
+echo ${corsika_file}
+
+corsika_input=$(corsika_input "${run}" "${zenith}" "${atm}")
+
+atm_file=$(atm_config_file "${atm}")
+cp "${atm_file}" .
+
+# Filling in corsika input file
+
+echo "RUNNR ${n_run}" > "${corsika_input}"
+echo "EVTNR   1"  >> "${corsika_input}"
+echo "NSHOW ${nshow}" >> "${corsika_input}"
+
+#adding area over which showers are thrown
+radius="750.E2"
+if [ "${zenith}" = "40" ] || [ "${zenith}" = "45" ]; then
+    radius="1000.E2"
+elif [ "${zenith}" = "50" ] || [ "${zenith}" = "55" ] || [ "${zenith}" = "60" ] || [ "${zenith}" = "65" ]; then
+    radius="1500.E2"
+fi
+echo "CSCAT 5 ${radius} 0." >> "${corsika_input}"
+
+if [ "${primary}" = "gamma" ]; then
+    echo "PRMPAR  1" >> "${corsika_input}"
+    low_energy="50."
+    if [ "${zenith}" = "0" ] || [ "${zenith}" = "20" ]; then
+        low_energy="30."
+    elif [ "${zenith}" = "55" ] || [ "${zenith}" = "60" ] || [ "${zenith}" = "65" ]; then
+        low_energy="100."
+    fi
+    echo "ERANGE  ${low_energy} 200.E3" >> "${corsika_input}"
+elif [ "${primary}" = "electron" ]; then
+   echo "PRMPAR  2" >> "${corsika_input}"
+   echo "ERANGE  30. 200.E3" >> "${corsika_input}"
+elif [ "${primary}" = "proton" ]; then
+   echo "PRMPAR  14" >> "${corsika_input}"
+   echo "ERANGE  30. 600.E3" >> "${corsika_input}"
+elif [ "${primary}" = "helium" ]; then
+   echo "PRMPAR  402" >> "${corsika_input}"
+   echo "ERANGE  30. 600.E3" >> "${corsika_input}"
+fi
+
+echo "ESLOPE  -1.5" >> "${corsika_input}"
+echo "THETAP  ${zenith} ${zenith}" >> "${corsika_input}"
+echo "PHIP    0. 360." >> "${corsika_input}"
+echo "VIEWCONE    0. 10." >> "${corsika_input}"
+seed=${run}0
+echo "SEED    ${seed} 0   0" >> "${corsika_input}"
+seed=$((seed + 2))
+echo "SEED    ${seed} 0   0" >> "${corsika_input}"
+seed=$((seed + 2))
+echo "SEED    ${seed} 0   0" >> "${corsika_input}"
+seed=$((seed + 2))
+echo "SEED    ${seed} 0   0" >> "${corsika_input}"
+echo "ATMOD   1" >> "${corsika_input}"
+echo "MAGNET  25.2 40.88" >> "${corsika_input}"
+echo "ARRANG  10.4" >> "${corsika_input}"
+echo "ELMFLG  F   T" >> "${corsika_input}"
+echo "RADNKG  200.E2" >> "${corsika_input}"
+echo "FIXCHI 0." >> "${corsika_input}"            # fixed starting altitude in g/cm2
+echo "HADFLG  0  0  0  0  0  2" >> "${corsika_input}"
+echo "QGSJET  T"  0 >> "${corsika_input}"
+echo "QGSSIG  T" >> "${corsika_input}"
+echo "HILOW 100." >> "${corsika_input}"      # transition energy between low and high energy model [GeV]
+echo "ECUTS   0.30  0.05  0.02  0.02" >> "${corsika_input}"
+echo "MUADDI  F" >> "${corsika_input}"
+echo "MUMULT  T" >> "${corsika_input}"
+echo "LONGI   T  20. F F" >> "${corsika_input}"
+echo "MAXPRT  50" >> "${corsika_input}"
+echo "PAROUT F F" >> "${corsika_input}"
+echo "ECTMAP  1.E5" >> "${corsika_input}"
+echo "DEBUG   F  6  F  1000000" >> "${corsika_input}"
+echo "DIRECT  /dev/null" >> "${corsika_input}"
+echo "USER    ano" >> "${corsika_input}"
+echo "HOST    stampede" >> "${corsika_input}"
+echo "ATMOSPHERE 61 T" >> "${corsika_input}"              # crashes for particles with fixed height
+
+tel_pos_file=$(corsika_tel_positions)
+cat "${tel_pos_file}" >> "${corsika_input}"
+
+echo "TELFIL ${corsika_file}" >> "${corsika_input}"                    # telescope line
+echo "CERFIL  F" >> "${corsika_input}"
+echo "CERSIZ 5." >> "${corsika_input}"
+echo "CWAVLG 200. 700." >> "${corsika_input}"
+echo "EXIT" >> "${corsika_input}"
+# end of generating corsika file
+#################################################################
+
+# Running CORSIKA
+
+corsika_exe="/afs/ifh.de/group/cta/scratch/prado/corsika_simtelarray/corsika6.9_simtelarray_19-04-24_Prod4-MST/corsika-run/corsika"
+# corsika_exe="/afs/ifh.de/group/cta/scratch/prado/corsika/corsika-75000/run/corsika75000Linux_QGSII_gheisha"
+corsika_log=$(corsika_log "${run}" "${zenith}" "${atm}")
+
+remove_file "${corsika_log}" | true
+
+corsika_exe_dir=$(dirname "${corsika_exe}")
+cp "${atm_file}" "${corsika_exe_dir}"
+
+cd "${corsika_exe_dir}"
+
+echo "Running CORSIKA"
+echo "${corsika_exe} < ${corsika_input} >& ${corsika_log}"
+${corsika_exe} < "${corsika_input}" >& "${corsika_log}"
+# corsika < "${corsika_input}"
+
+# check if this run was successfull
+werr=$(grep -i "END OF RUN" "${corsika_log}" | wc -l)
+if [ "${werr}" != "1" ]; then
+    echo "END OF RUN missing in log file"
+    tail -n 1000 "${corsika_log}"
+    exit 1
+fi
+
+echo "runCORSIKA done"
+
+print_runtime "$SECONDS"

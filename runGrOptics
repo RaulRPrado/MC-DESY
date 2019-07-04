@@ -1,0 +1,119 @@
+#!/bin/bash
+
+set -o errexit   # abort on nonzero exitstatus
+set -o pipefail  # don't hide errors within pipes
+
+SECONDS=0
+
+echo "Starting runGrOptics"
+
+show_help() {
+   echo ""
+   echo "Syntax: ./runGrOptics [ args ]"
+   echo "Options:"
+   echo "-run                                    (run number)"
+   echo "-zenith                                 (zenith angle)"
+   echo "-wobble                                 (wobble)"
+   echo "-atm                                    (summer/62 or winter/61)"
+   echo ""
+}
+
+# shellcheck disable=SC1091
+source /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/util.sh
+# shellcheck disable=SC1091
+source /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/setupMC.sh
+
+run_list="2010000"
+zenith=20
+wobble="0.5"
+atm="winter"
+
+while :; do
+    case $1 in
+        -h|-\?|--help)
+            show_help
+            exit
+            ;;
+        -run)
+            run_list=$2
+            shift
+            ;;
+        -zenith)
+            zenith=$2
+            shift
+            ;;
+        -wobble)
+            wobble=$2
+            shift
+            ;;
+        -atm)
+            atm=$2
+            shift
+            ;;
+        *)
+            break
+    esac
+    shift
+done
+
+######################
+# Processing arguments
+atm=$(validate_atm "${atm}")
+cfg_atm=$(config_atm "${atm}")
+
+zenith=$(validate_zenith "${zenith}")
+wobble=$(validate_wobble "${wobble}")
+
+#IOReader config file
+readonly cfg_ioreader=$(config_ioreader)
+
+for run in ${run_list}; do
+    printf "Starting run: %s\n" "${run}"
+
+    wd=$(wobble_direction "${run}") 
+
+    printf "\nParameters\n"
+    printf "Run: %s\n" "${run}"
+    printf "Zenith: %s\n" "${zenith}"
+    printf "Wobble: %s\n" "${wobble}"
+    printf "Atm: %s\n" "${atm}"
+    printf "Wobble direction: %s\n\n" "${wd}"
+
+    # CORSIKA handling
+    corsika_file_zip=$(corsika_file_zip "${run}" "${zenith}" "${atm}")
+    corsika_file=$(corsika_file "${run}" "${zenith}" "${atm}")
+
+    mkdir -p "$(dirname "${corsika_file}")"
+
+    # Unziping corsika file
+    printf "Unzipping corsika file\n"
+    bunzip2 -c "${corsika_file_zip}.bz2" > "${corsika_file}" || {
+      printf "Problem to unzip file run: %s\n" "${run}" 
+      continue
+    }
+
+    # GRO file
+    gro_file=$(groptics_file "${run}" "${zenith}" "${atm}" "${wobble}")
+    mkdir -p "$(dirname "${gro_file}")"
+    printf "GrOptics file: %s\n" "${gro_file}"
+
+    gro_pilot=$(gro_pilot_file "${wobble}" "${wd}" "false")
+    printf "GrOptics pilot: %s\n" "${gro_pilot}"
+
+    printf "Running corsikaIOreader && GrOptics ...\n"
+    cd "${SW_DIR}/GrOptics" || exit
+
+    # shellcheck disable=SC2086
+    ${SW_DIR}/corsikaSimulationTools/corsikaIOreader -queff 0.50 -cors "${corsika_file}" -seed "${run}" -grisu stdout -abs "${cfg_atm}" -cfg "${cfg_ioreader}" | ${SW_DIR}/GrOptics/grOptics -of "${gro_file}" -p "${gro_pilot}"
+        
+    corsika_size=$(file_size "${corsika_file}")
+
+    rm "${corsika_file}"
+
+    printf "corsikaIOreader/GrOptics DONE\n\n"
+
+    printf "CORSIKA size: %s\n" "${corsika_size}"
+
+done
+
+print_runtime "$SECONDS"

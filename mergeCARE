@@ -1,0 +1,64 @@
+#!/bin/bash
+
+SECONDS=0
+
+set -o errexit   # abort on nonzero exitstatus
+set -o pipefail  # don't hide errors within pipes
+
+# shellcheck disable=SC1091
+source /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/util.sh
+# shellcheck disable=SC1091
+source /afs/ifh.de/group/cta/scratch/prado/loadVBF.sh
+# shellcheck disable=SC1091
+source /afs/ifh.de/group/cta/scratch/prado/loadRoot.sh
+
+atm="winter"
+zenith="20"     
+wobble="0.25"
+mode="std"
+nsb_list="200"
+n_min=0     # min run
+n_max=100000    # max run (100000) 
+
+# shellcheck disable=SC2068
+collect_arguments 7 atm zenith wobble mode nsb_list n_min n_max $@
+
+all_n=$(seq "${n_min}" "${n_max}")
+
+atm=$(validate_atm "${atm}")
+zenith=$(validate_zenith "${zenith}")
+wobble=$(validate_wobble "${wobble}")
+mode=$(validate_mode "${mode}")
+
+for nsb in ${nsb_list}; do
+    
+    files_to_merge="/afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/lists/files_to_merge_${RANDOM}.lis"
+    true > "${files_to_merge}"
+    for n in ${all_n}; do
+        run=$(compute_run "${zenith}" "${n}")
+
+        care_file=$(care_file "${run}" "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
+        if [ -f  "${care_file}.vbf" ]; then
+            echo "${care_file}.vbf" >> "${files_to_merge}"
+        fi        
+
+    done
+
+    merged_care_file=$(merged_care_file "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
+    mkdir -p "$(dirname "${merged_care_file}")"
+
+    echo "Merging ..."
+    printf "%s\n" "${merged_care_file}"
+
+    /afs/ifh.de/group/cta/scratch/prado/sw/eventDisplay/v501_rd/bin/mergeVBF "${files_to_merge}" "${merged_care_file}" 1
+done
+
+print_runtime "${SECONDS}"
+
+# time_file="merging_time.dat"
+# number_file="merging_number.dat"
+
+# echo "${SECONDS}" >> "${time_file}"
+# echo "${n_max}" >> "${number_file}"
+
+rm "${files_to_merge}"

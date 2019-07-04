@@ -1,0 +1,72 @@
+  Steering pilot file for GrOptics
+VERSION 1.0
+6Jan2012
+
+C. Duke
+Grinnell College
+
+Only records with an initial "*" are active.  
+
+cherenkov photon GRISU-type input file, 
+same type input file as for grisudet. 
+FILEIN <filename>  
+ FILEIN ./Config/photon.cph
+
+camera output root file specification type
+      - root file name
+      - name for tree containing parameters common to all photons
+      - base name for photon trees, one tree per telescope, 
+        telescope number appended to base name
+      - photonDirCosine flag: 0/1, if 1 add dirCosineCamera branches
+FILEOUT <root filename> <TreeName> <telBaseTreeName> <photonDirCosBranchFlag>
+* FILEOUT photonLocation.root allT T 0
+
+name of grOptics log file, default use cerr (if no asterisk)
+ LOGFILE logTest.log
+
+number of showers/photons, defaults -1
+  NSHOWER <numShowers, <0, no limit>
+          <numPhotons, <0, no limit>
+* NSHOWER -1 -1
+ NSHOWER 0 0
+
+x and y coordinates of the source in the field
+of view followed by the source extention radius (all in degrees). The fourth
+parameter is the latitude of the observatory in degrees. If the latitude is
+set to 90 degrees the source position is given in camera corrdinates. If the
+latitude is less than 90 degrees, the source position in x corresponds to an
+offset in the east west direction while the y position corresponds to north 
+south.
+Example: 
+wobble North: WOBBLE 0.0 0.5 0.0 31.675  
+wobble East : WOBBLE 0.5 0.0 0.0 31.675  
+* WOBBLE 0.0 0.5 0.4 90.0
+
+ WOBBLE 0.0 0.5 0.0 31.675
+
+
+
+array configuration file
+ ARRAYCONFIG <filename: default ./Config/arrayConfig.cfg>
+* ARRAYCONFIG /lustre/fs19/group/cta/users/epuesche/software/GrOptics/Config/VERITAS_NewArray.cfg
+ ARRAYCONFIG ./Config/arrayConfig.cfg
+
+random number seed for TRandom3: default seed = 0, set by machine clock.
+seed must be an unsigned integer
+* SEED 5346
+
+photonHistory file, no history file if no asterisk, each telescope has a history file
+Very useful for debugging
+ PHOTONHISTORY <root file, tel.number appended to base name> 
+               <tree name: default = "his">
+ PHOTONHISTORY /lustre/lreyes/grisu/photonhistory.root his
+
+///////////////  draw possibilities for checking configuration and
+                               debugging
+
+DRAWTEL <telescope number to draw>, default 0 (no drawing)
+code makes an opengl drawing of the telescope and immediately 
+stops with the root prompt. These are cool drawings. 
+ DRAWTEL 1
+
+ TESTTEL 1 PSFgraph

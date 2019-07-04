@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -o errexit   # abort on nonzero exitstatus
+set -o pipefail  # don't hide errors within pipes
+
+# shellcheck disable=SC1091
+source /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/util.sh
+
+atm="winter"
+zenith="20"
+mode="std"
+nsb_group="all"
+
+# shellcheck disable=SC2068
+collect_arguments 4 atm zenith mode nsb_group $@
+
+atm=$(validate_atm "${atm}")
+zenith=$(validate_zenith "${zenith}")
+mode=$(validate_mode "${mode}")
+nsb_list=$(nsb_list_from_group "${nsb_group}")
+
+run=$(compute_run "${zenith}" "10")
+
+for wobble in 0 0.25 0.5 0.75 1.0 1.25 1.5 1.75 2.0; do
+# for wobble in 1.5 1.75; do
+    wob=$(validate_wobble "${wobble}")
+
+    printf "Wobble %s\n" "${wob}"
+    for nsb in ${nsb_list}; do
+        care_file=$(care_file "${run}" "${zenith}" "${atm}" "${wob}" "${nsb}" "${mode}")
+        care_dir=$(dirname "${care_file}")
+        if [ -d "${care_dir}" ]; then
+            n=$(ls "${care_dir}" | wc -l)
+            printf "NSB%s: %s\n" "${nsb}" "$((n / 2))"
+        fi        
+    done
+done
