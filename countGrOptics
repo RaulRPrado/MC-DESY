@@ -1,0 +1,31 @@
+#!/bin/bash
+
+set -o errexit   # abort on nonzero exitstatus
+set -o pipefail  # don't hide errors within pipes
+
+# shellcheck disable=SC1091
+source /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/util.sh
+
+atm="winter"
+zenith="20"
+
+# shellcheck disable=SC2068
+collect_arguments 2 atm zenith $@
+
+atm=$(validate_atm "${atm}")
+zenith=$(validate_zenith "${zenith}")
+
+run=$(compute_run "${zenith}" "10")
+
+for wobble in 0 0.25 0.5 0.75 1.0 1.25 1.5 1.75 2.0; do
+    wob=$(validate_wobble "${wobble}")
+
+    printf "Wobble %s\n" "${wob}"
+    gro_file=$(groptics_file "${run}" "${zenith}" "${atm}" "${wob}")
+    gro_dir=$(dirname "${gro_file}")
+    if [ -d "${gro_dir}" ]; then
+        n=$(ls "${gro_dir}" | wc -l)
+        printf "%s" "$n"
+    fi        
+    printf "\n"
+done
