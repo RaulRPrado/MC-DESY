@@ -3,8 +3,12 @@
 set -o errexit   # abort on nonzero exitstatus
 set -o pipefail  # don't hide errors within pipes
 
+echo "Starting subMerge"
+
+source_dir=$(dirname "${BASH_SOURCE[0]}")
 # shellcheck disable=SC1091
-source /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/util.sh
+# shellcheck disable=SC1090
+source "${source_dir}/util.sh"
 
 atm="winter"
 zenith="30"
@@ -27,6 +31,5 @@ for nsb in ${nsb_list}; do
     mkdir -p "$(dirname "${log_out}")"
 
     # shellcheck disable=SC2086
-    qsub -P veritas -l s_cpu=48:00:00 -l h_rss=4G ${send_mail} -N "merge_${wobble}" -e "${log_err}" -o "${log_out}" /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/mergeCARE -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}" -mode "${mode}" -nsb_list "${nsb}" -n_max "${n_max}"
-    
+    qsub -P veritas -l s_cpu=48:00:00 -l h_rss=4G ${send_mail} -N "merge_${wobble}" -e "${log_err}" -o "${log_out}" "${source_dir}/mergeCARE" -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}" -mode "${mode}" -nsb_list "${nsb}" -n_max "${n_max}"
 done

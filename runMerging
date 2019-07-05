@@ -1,6 +1,0 @@
-#!/bin/bash
-
-for i in $(seq 0 10); do
-    n=$((6500 + i*500))
-    ./mergeCARE -n_max "$n"
-done 

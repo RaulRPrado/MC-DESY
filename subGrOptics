@@ -3,8 +3,12 @@
 set -o errexit   # abort on nonzero exitstatus
 set -o pipefail  # don't hide errors within pipes
 
+echo "Starting subGrOptics"
+
+source_dir=$(dirname "${BASH_SOURCE[0]}")
 # shellcheck disable=SC1091
-source /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/util.sh
+# shellcheck disable=SC1090
+source "${source_dir}/util.sh"
 
 atm="winter"
 zenith="35"
@@ -66,7 +70,7 @@ for n in ${all_n}; do
         
         if [ "${do_submit}" = "true" ]; then
             # shellcheck disable=SC2086
-            qsub -P veritas -l s_cpu=6:00:00 -l h_rss=2G ${send_mail} -N "gro_${wobble}" -e "${log_err}" -o "${log_out}" /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/runGrOptics -run "${runs}" -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}"
+            qsub -P veritas -l s_cpu=6:00:00 -l h_rss=2G ${send_mail} -N "gro_${wobble}" -e "${log_err}" -o "${log_out}" "${source_dir}/runGrOptics" -run "${runs}" -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}"
         fi
         
         nruns=0

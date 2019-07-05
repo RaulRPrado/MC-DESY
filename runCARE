@@ -5,11 +5,11 @@ set -o pipefail  # don't hide errors within pipes
 
 SECONDS=0
 
-echo "Starting runGrOptics"
+echo "Starting runCARE"
 
 show_help() {
    echo ""
-   echo "Syntax: ./runGrOptics [ args ]"
+   echo "Syntax: ./runCARE [ -arg value ]"
    echo "Options:"
    echo "-run                                    (run number)"
    echo "-zenith                                 (zenith angle)"
@@ -20,10 +20,14 @@ show_help() {
    echo ""
 }
 
+
+source_dir=$(dirname "${BASH_SOURCE[0]}")
 # shellcheck disable=SC1091
-source /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/util.sh
+# shellcheck disable=SC1090
+source "${source_dir}/util.sh"
 # shellcheck disable=SC1091
-source /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/setupMC.sh
+# shellcheck disable=SC1090
+source "${source_dir}/setupMC.sh"
 
 run_list="2010000"
 zenith=20

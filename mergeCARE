@@ -5,8 +5,11 @@ SECONDS=0
 set -o errexit   # abort on nonzero exitstatus
 set -o pipefail  # don't hide errors within pipes
 
+
+source_dir=$(dirname "${BASH_SOURCE[0]}")
 # shellcheck disable=SC1091
-source /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/util.sh
+# shellcheck disable=SC1090
+source "${source_dir}/util.sh"
 # shellcheck disable=SC1091
 source /afs/ifh.de/group/cta/scratch/prado/loadVBF.sh
 # shellcheck disable=SC1091
