@@ -5,17 +5,15 @@ set -o pipefail  # don't hide errors within pipes
 
 echo "Starting subCARE"
 
-source_dir=$(dirname "${BASH_SOURCE[0]}")
-# shellcheck disable=SC1091
-# shellcheck disable=SC1090
-source "${source_dir}/util.sh"
+# shellcheck disable=SC1091,SC1090
+source "util.sh"
 
 atm="winter"
 zenith="30"
 wobble="0.0"
 mode="std"
 nsb_group="b"
-n_min=0     # min run
+n_min=0         # min run
 n_max=200000    # max run (100000) 
 readonly runs_per_job=10
 readonly do_submit="true"
@@ -40,7 +38,6 @@ first_run=""
 # shellcheck disable=SC2086
 last_n=$(echo ${all_n} | awk '{print $NF}')
 for n in ${all_n}; do
-
     run=$(compute_run "${zenith}" "${n}")
     if [ "${first_run}" = "" ]; then
         first_run="${run}"
@@ -80,7 +77,7 @@ for n in ${all_n}; do
         
         if [ "${do_submit}" = "true" ]; then
             # shellcheck disable=SC2086
-            qsub -P veritas -l s_cpu=12:00:00 -l h_rss=2G ${send_mail} -N "care_${wobble}" -e "${log_err}" -o "${log_out}" "${source_dir}/runCARE" -run "${runs}" -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}" -mode "${mode}" -nsb "${nsb_list}"
+            qsub -P veritas -cwd -l s_cpu=12:00:00 -l h_rss=2G ${send_mail} -N "care_${wobble}" -e "${log_err}" -o "${log_out}" "./runCARE" -run "${runs}" -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}" -mode "${mode}" -nsb "${nsb_list}"
         fi
         
         nruns=0
@@ -88,5 +85,4 @@ for n in ${all_n}; do
         njobs=$(( njobs + 1 ))
         first_run=""
     fi
-
 done

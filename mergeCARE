@@ -6,14 +6,13 @@ set -o errexit   # abort on nonzero exitstatus
 set -o pipefail  # don't hide errors within pipes
 
 
-source_dir=$(dirname "${BASH_SOURCE[0]}")
-# shellcheck disable=SC1091
-# shellcheck disable=SC1090
+source_dir=$(dirname "$0")
+# shellcheck disable=SC1091,SC1090
 source "${source_dir}/util.sh"
-# shellcheck disable=SC1091
-source /afs/ifh.de/group/cta/scratch/prado/loadVBF.sh
-# shellcheck disable=SC1091
-source /afs/ifh.de/group/cta/scratch/prado/loadRoot.sh
+# shellcheck disable=SC1091,SC1090
+source "${source_dir}/loadVBF.sh"
+# shellcheck disable=SC1091,SC1090
+source "${source_dir}/loadRoot.sh"
 
 atm="winter"
 zenith="20"     
@@ -34,7 +33,6 @@ wobble=$(validate_wobble "${wobble}")
 mode=$(validate_mode "${mode}")
 
 for nsb in ${nsb_list}; do
-    
     files_to_merge="/afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/lists/files_to_merge_${RANDOM}.lis"
     true > "${files_to_merge}"
     for n in ${all_n}; do
@@ -53,10 +51,9 @@ for nsb in ${nsb_list}; do
     echo "Merging ..."
     printf "%s\n" "${merged_care_file}"
 
-    /afs/ifh.de/group/cta/scratch/prado/sw/eventDisplay/v501_rd/bin/mergeVBF "${files_to_merge}" "${merged_care_file}" 1
+    # shellcheck disable=SC2086
+    ${SW_DIR}/eventDisplay/v501_rd/bin/mergeVBF "${files_to_merge}" "${merged_care_file}" 1
 done
-
-print_runtime "${SECONDS}"
 
 # time_file="merging_time.dat"
 # number_file="merging_number.dat"
@@ -65,3 +62,5 @@ print_runtime "${SECONDS}"
 # echo "${n_max}" >> "${number_file}"
 
 rm "${files_to_merge}"
+
+print_runtime "${SECONDS}"

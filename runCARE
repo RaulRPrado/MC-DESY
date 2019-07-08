@@ -20,14 +20,10 @@ show_help() {
    echo ""
 }
 
-
-source_dir=$(dirname "${BASH_SOURCE[0]}")
-# shellcheck disable=SC1091
-# shellcheck disable=SC1090
-source "${source_dir}/util.sh"
-# shellcheck disable=SC1091
-# shellcheck disable=SC1090
-source "${source_dir}/setupMC.sh"
+# shellcheck disable=SC1091,SC1090
+source "util.sh"
+# shellcheck disable=SC1091,SC1090
+source "setupMC.sh"
 
 run_list="2010000"
 zenith=20
@@ -84,9 +80,7 @@ care_config=$(care_config_file "${mode}")
 care_low_gain_file=$(care_low_gain)
 care_high_gain_file=$(care_high_gain)
 
-
 for run in ${run_list}; do
-
     gro_file=$(groptics_file "${run}" "${zenith}" "${atm}" "${wobble}")
     
     if [ ! -f "${gro_file}" ]; then
@@ -94,9 +88,7 @@ for run in ${run_list}; do
         continue
     fi
 
-    
     for nsb in ${nsb_list}; do
-
         care_file=$(care_file "${run}" "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
         mkdir -p "$(dirname "${care_file}")"
         printf "CARE file:%s\n" "${care_file}"
@@ -108,9 +100,7 @@ for run in ${run_list}; do
         ${SW_DIR}/CARE/CameraAndReadout NSBRATEPERPIXEL "0 ${nsb}" HIGHGAINPULSESHAPE "0 ${care_high_gain_file}"  LOWGAINPULSESHAPE "0 ${care_low_gain_file}" --notraces --seed "${run}" --configfile "${care_config}" --outputfile "${care_file}" --inputfile "${gro_file}" --vbfrunnumber 10000 --writepedestals 1
                 
         echo "CARE DONE-------------------------------"
-
     done # nsb 
-
 done # run
 
 print_runtime "$SECONDS"

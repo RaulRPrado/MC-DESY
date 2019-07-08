@@ -18,13 +18,10 @@ show_help() {
    echo ""
 }
 
-source_dir=$(dirname "${BASH_SOURCE[0]}")
-# shellcheck disable=SC1091
-# shellcheck disable=SC1090
-source "${source_dir}/util.sh"
-# shellcheck disable=SC1091
-# shellcheck disable=SC1090
-source "${source_dir}/setupMC.sh"
+# shellcheck disable=SC1091,SC1090
+source "util.sh"
+# shellcheck disable=SC1091,SC1090
+source "setupMC.sh"
 
 run_list="2010000"
 zenith=20
@@ -114,9 +111,7 @@ for run in ${run_list}; do
     rm "${corsika_file}"
 
     printf "corsikaIOreader/GrOptics DONE\n\n"
-
     printf "CORSIKA size: %s\n" "${corsika_size}"
-
 done
 
 print_runtime "$SECONDS"

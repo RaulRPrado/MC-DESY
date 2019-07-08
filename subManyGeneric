@@ -1,6 +1,5 @@
 #!/bin/bash
 
-/afs/ifh.de/group/cta/scratch/prado/MC-DESY/subCARE -zenith 35 -wobble 0.0 -nsb_group a
-/afs/ifh.de/group/cta/scratch/prado/MC-DESY/subCARE -zenith 35 -wobble 0.0 -nsb_group b
-/afs/ifh.de/group/cta/scratch/prado/MC-DESY/subCARE -zenith 35 -wobble 0.0 -nsb_group c
-
+./subCARE -zenith 35 -wobble 0.0 -nsb_group a
+./subCARE -zenith 35 -wobble 0.0 -nsb_group b
+./subCARE -zenith 35 -wobble 0.0 -nsb_group c
