@@ -4,7 +4,7 @@ set -o errexit   # abort on nonzero exitstatus
 set -o pipefail  # don't hide errors within pipes
 
 # shellcheck disable=SC1091
-source /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/util.sh
+source "util.sh"
 
 atm="winter"
 zenith="20"
@@ -45,7 +45,6 @@ for i in ${all_n}; do
 
     log_out=$(groptics_log "${run}" "${zenith}" "${atm}" "${wobble}" "out")
     if [ -f "${log_out}" ]; then
-
         prob_runs=$(grep "Problem to unzip file run:" "${log_out}" | awk '{print $NF}' || true)
 
         if [ "${prob_runs}" != "" ]; then
@@ -71,9 +70,7 @@ for i in ${all_n}; do
         else
             echo "Aborted ${run}"     
         fi
-
     fi
-
 done
 
 sum=0

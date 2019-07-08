@@ -4,7 +4,7 @@ set -o errexit   # abort on nonzero exitstatus
 set -o pipefail  # don't hide errors within pipes
 
 # shellcheck disable=SC1091
-source /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/util.sh
+source "util.sh"
 
 atm="winter"
 zenith="20"
@@ -29,7 +29,6 @@ bad_runs="lists/care_runs_Zd${zenith}_${atm}_wobble${wobble}_bad.lis"
 true > "${bad_runs}"
 
 sec_list=""
-
 sec_file="time.lis"
 true > "${sec_file}"
 
@@ -48,7 +47,6 @@ for i in ${all_n}; do
     first_nsb=$(echo ${nsb_list} | awk '{print $1}')
     log_out=$(care_log "${run}" "${zenith}" "${atm}" "${wobble}" "${first_nsb}" "${mode}" "out")
     if [ -f "${log_out}" ]; then
-
         sec=$(grep "Seconds:" "${log_out}" | awk '{print $NF}' || true)
 
         if [ "${sec}" != "" ]; then

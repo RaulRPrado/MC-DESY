@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Utilities functions
+
 error_exit()
 {
     echo "$1" 1>&2
@@ -33,13 +35,16 @@ remove_file()
 
 config_dir()
 {
-    echo "/afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/config"
+    echo "config"
 }
 
 print_runtime()
 {
+    # Print the runtime in a nice format
+    # for a given number of seconds
+    local seconds=$1
     local days
-    local days=$(( $1 / 86400 ))
+    local days=$(( seconds / 86400 ))
     printf "Runtime: %s:" "${days}"
     TZ=UTC0 printf '%(%H:%M:%S)T\n' "${1}"
     printf "Seconds: %s\n" "${1}"
@@ -47,6 +52,7 @@ print_runtime()
 
 file_size()
 {
+    # Print file size in G
     local file=$1
     local size
     size=$(stat -c%s "${file}")
@@ -55,6 +61,8 @@ file_size()
 
 collect_arguments()
 {
+    # Collect arguments from $@
+    # Usage: collect_aruments number_of_arguments arg1 arg2 arg3 ... S@
     local n_args=$1
     shift
     local pars=""
@@ -63,6 +71,7 @@ collect_arguments()
         shift
     done
 
+    # shellcheck disable=SC2068    
     for arg in $@; do
         found_par="false"
         for par in ${pars}; do
@@ -87,6 +96,7 @@ collect_arguments()
 
 validate_wobble_direction()
 {
+    # shellcheck disable=SC2140 
     if ! [[ "$1" =~ ^("north"|"south"|"east"|"west"|"all")$ ]]; then
         error_exit "Wobble direction option is invalid - aborting"
     else
@@ -96,6 +106,8 @@ validate_wobble_direction()
 
 wobble_direction()
 {
+    # Return wobble direction (north, south, east or west)
+    # for a given run number
     local run=$1
     local wd=""
     case "$(echo "${run}%4" | bc)" in
@@ -140,6 +152,8 @@ validate_atm()
 
 validate_wobble()
 {
+    # Validate wobble, return in a fixed format
+    # 2 digits of precision maximum 
     local wob
     wob=$(echo "$1" | bc -l)
     if [ "$(echo "${wob} == 0" | bc -l)" = "1" ]; then
@@ -156,6 +170,7 @@ validate_wobble()
 
 validate_mode()
 {
+    # CARE mode: std or rhv (Reduced High Voltage)
     local mode=$1
     if [ "${mode}" != "std" ] && [ "${mode}" != "rhv" ]; then
         error_exit "Mode option is invalid - aborting"
@@ -166,6 +181,7 @@ validate_mode()
 
 validate_primary()
 {
+    # Only proton is allowed by now
     local prim=$1
     if [ "${prim}" != "proton" ]; then
         error_exit "primary option is invalid - aborting"
@@ -176,6 +192,7 @@ validate_primary()
 
 nsb_list_from_group()
 {
+    # NSb groups are a, b or c
     local group=$1
     if [ "${group}" = "a" ] || [ "${group}" = "A" ]; then
         echo "50 75 100 130"
@@ -193,6 +210,8 @@ nsb_list_from_group()
 
 compute_run()
 {
+    # Compute run number for a given zenith
+    # and sequencial number i
     local zenith=$1
     local i=$2
     echo "${zenith}$(( i + 5000 ))"
@@ -237,6 +256,7 @@ groptics_file()
 
 groptics_log()
 {
+    # Label should be out or err
     local run=$1
     local zenith=$2
     local atm=$3
@@ -252,6 +272,8 @@ groptics_log()
 
 gro_pilot_file()
 {
+    # Return GrOptics pilot file for a given wobble offset and direction
+    # File is created if it does not exists, unless force=true
     local wobble=$1
     local wd=$2
     local force=$3
@@ -297,6 +319,7 @@ config_ioreader()
 
 corsika_directory_zip()
 {
+    # Return directory of zipped corsika file
     local zenith=$1
     local atm=$2
     local zenith_dir
