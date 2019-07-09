@@ -20,10 +20,11 @@ show_help() {
 }
 
 # shellcheck disable=SC1091
-source /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/util.sh
+source util.sh
 
-n_run="1"
-zenith=20
+label=crab
+zenith=11.14
+run="105001"
 atm="winter"
 primary="proton"
 nshow=1000
@@ -34,24 +35,16 @@ while :; do
             show_help
             exit
             ;;
-        -n)
-            n_run=$2
-            shift
-            ;;
-        -zenith)
-            zenith=$2
-            shift
-            ;;
-        -atm)
-            atm=$2
-            shift
-            ;;
-        -primary)
-            primary=$2
+        -run)
+            run=$2
             shift
             ;;
         -nshow)
             nshow=$2
+            shift
+            ;;
+        -label)
+            label=$2
             shift
             ;;
         *)
@@ -63,32 +56,27 @@ done
 ######################
 # Processing arguments
 atm=$(validate_atm "${atm}")
-zenith=$(validate_zenith "${zenith}")
 primary=$(validate_primary "${primary}")
-
-run=$(compute_run "${zenith}" "${n_run}")
 
 #CORSIKA
 export CORSIKA_IO_BUFFER=10GiB
 export CORSIKA_MAX_BUNCHES=10000000000
 
-corsika_file=$(corsika_out_file "${run}" "${zenith}" "${atm}")
+corsika_file=$(corsika_proton_file "${label}" "${run}")
 corsika_dir=$(dirname "${corsika_file}")
 mkdir -p "${corsika_dir}"
 mkdir -p "${corsika_dir}/log"
 mkdir -p "${corsika_dir}/input"
 mkdir -p "${corsika_dir}/telfiles"
 
-echo ${corsika_file}
-
-corsika_input=$(corsika_input "${run}" "${zenith}" "${atm}")
+corsika_input=$(corsika_proton_input "${label}" "${run}")
 
 atm_file=$(atm_config_file "${atm}")
 cp "${atm_file}" .
 
 # Filling in corsika input file
 
-echo "RUNNR ${n_run}" > "${corsika_input}"
+echo "RUNNR ${run}" > "${corsika_input}"
 echo "EVTNR   1"  >> "${corsika_input}"
 echo "NSHOW ${nshow}" >> "${corsika_input}"
 
@@ -171,7 +159,7 @@ echo "EXIT" >> "${corsika_input}"
 
 corsika_exe="/afs/ifh.de/group/cta/scratch/prado/corsika_simtelarray/corsika6.9_simtelarray_19-04-24_Prod4-MST/corsika-run/corsika"
 # corsika_exe="/afs/ifh.de/group/cta/scratch/prado/corsika/corsika-75000/run/corsika75000Linux_QGSII_gheisha"
-corsika_log=$(corsika_log "${run}" "${zenith}" "${atm}")
+corsika_log=$(corsika_proton_log "${label}" "${run}" "log")
 
 remove_file "${corsika_log}" | true
 
@@ -183,7 +171,6 @@ cd "${corsika_exe_dir}"
 echo "Running CORSIKA"
 echo "${corsika_exe} < ${corsika_input} >& ${corsika_log}"
 ${corsika_exe} < "${corsika_input}" >& "${corsika_log}"
-# corsika < "${corsika_input}"
 
 # check if this run was successfull
 werr=$(grep -i "END OF RUN" "${corsika_log}" | wc -l)

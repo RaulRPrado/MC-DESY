@@ -9,10 +9,10 @@ echo "Starting subGrOptics"
 source "util.sh"
 
 atm="winter"
-zenith="35"
+zenith="20"
 wobble="0.0"
 n_min=0          # min run
-n_max=200000     # max run (100000) 
+n_max=100000     # max run (100000) 
 readonly runs_per_job=10
 readonly do_submit="true"
 readonly force="false"

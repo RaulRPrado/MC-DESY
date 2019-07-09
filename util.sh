@@ -287,9 +287,7 @@ gro_pilot_file()
         local gen_file="${cfg_dir}/GrOptics/GrOpticsV6pilot_generic.txt"
         cp "${gen_file}" "${file}"
         sed -i -e 's/X'"${wd}"'X/*/g' "${file}"
-        W="0$(echo "scale=2; ${wobble}/10" | bc -l)"
-        sed -i -e 's/XWX/'"$W"'/g' "${file}"
-        echo "${file}"  
+        sed -i -e 's/XWX/'"${wobble}"'/g' "${file}"
     fi
     echo "${file}"
 }
@@ -364,49 +362,51 @@ corsika_file()
     echo "${corsika_dir}/DAT${run}.telescope"
 }
 
-corsika_out_directory()
-{
-    local zenith=$1
-    local atm=$2
-    local zenith_dir
-    zenith_dir=$(zenith_directory "${zenith}")
-    local atm_dir
-    atm_dir=$(atm_directory "${atm}")
+## Proton stuff
 
-    echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/corsika"    
+compute_proton_run()
+{
+    # Compute run number for a given zenith
+    # and sequencial number i
+    local i=$1
+    echo "10$(( i + 5000 ))"
 }
 
-corsika_out_file()
+corsika_proton_directory()
 {
-    local run=$1
-    local zenith=$2
-    local atm=$3
+    local label=$1
+    echo "/lustre/fs23/group/veritas/V6_DESY/proton/${label}/corsika"    
+}
+
+corsika_proton_file()
+{
+    local label=$1
+    local run=$2
     local corsika_dir
-    corsika_dir=$(corsika_out_directory "${zenith}" "${atm}")
+    corsika_dir=$(corsika_proton_directory "${label}")
 
     echo "${corsika_dir}/DAT${run}.telescope"
 }
 
-corsika_input()
+corsika_proton_input()
 {
-    local run=$1
-    local zenith=$2
-    local atm=$3
+    local label=$1
+    local run=$2
     local corsika_dir
-    corsika_dir=$(corsika_out_directory "${zenith}" "${atm}")
+    corsika_dir=$(corsika_proton_directory "${label}")
 
     echo "${corsika_dir}/input/DAT${run}.inp"
 }
 
-corsika_log()
+corsika_proton_log()
 {
-    local run=$1
-    local zenith=$2
-    local atm=$3
+    local label=$1
+    local run=$2
+    local type=$3
     local corsika_dir
-    corsika_dir=$(corsika_out_directory "${zenith}" "${atm}")
+    corsika_dir=$(corsika_proton_directory "${label}")
 
-    echo "${corsika_dir}/log/DAT${run}.log"
+    echo "${corsika_dir}/log/DAT${run}.${type}"
 }
 
 corsika_tel_positions()
