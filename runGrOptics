@@ -11,17 +11,13 @@ show_help() {
    echo ""
    echo "Syntax: ./runGrOptics [ args ]"
    echo "Options:"
+   echo "-src                                    (source directory)"
    echo "-run                                    (run number)"
    echo "-zenith                                 (zenith angle)"
    echo "-wobble                                 (wobble)"
    echo "-atm                                    (summer/62 or winter/61)"
    echo ""
 }
-
-# shellcheck disable=SC1091,SC1090
-source "util.sh"
-# shellcheck disable=SC1091,SC1090
-source "setupMC.sh"
 
 run_list="2010000"
 zenith=20
@@ -36,6 +32,10 @@ while :; do
             ;;
         -run)
             run_list=$2
+            shift
+            ;;
+        -src)
+            source_dir=$2
             shift
             ;;
         -zenith)
@@ -56,16 +56,21 @@ while :; do
     shift
 done
 
+# shellcheck disable=SC1091,SC1090
+source "${source_dir}/util.sh"
+# shellcheck disable=SC1091,SC1090
+source "${source_dir}/setupMC.sh"
+
 ######################
 # Processing arguments
 atm=$(validate_atm "${atm}")
-cfg_atm=$(config_atm "${atm}")
+cfg_atm=$(config_atm "${source_dir}" "${atm}")
 
 zenith=$(validate_zenith "${zenith}")
 wobble=$(validate_wobble "${wobble}")
 
 #IOReader config file
-readonly cfg_ioreader=$(config_ioreader)
+readonly cfg_ioreader=$(config_ioreader "${source_dir}")
 
 for run in ${run_list}; do
     printf "Starting run: %s\n" "${run}"
@@ -86,6 +91,8 @@ for run in ${run_list}; do
     mkdir -p "$(dirname "${corsika_file}")"
 
     # Unziping corsika file
+    printf "CORSIKA file zip:%s\n" "${corsika_file_zip}"
+    printf "CORSIKA file:%s\n" "${corsika_file}"
     printf "Unzipping corsika file\n"
     bunzip2 -c "${corsika_file_zip}.bz2" > "${corsika_file}" || {
       printf "Problem to unzip file run: %s\n" "${run}" 
@@ -97,7 +104,7 @@ for run in ${run_list}; do
     mkdir -p "$(dirname "${gro_file}")"
     printf "GrOptics file: %s\n" "${gro_file}"
 
-    gro_pilot=$(gro_pilot_file "${wobble}" "${wd}" "false")
+    gro_pilot=$(gro_pilot_file "${source_dir}" "${wobble}" "${wd}" "false")
     printf "GrOptics pilot: %s\n" "${gro_pilot}"
 
     printf "Running corsikaIOreader && GrOptics ...\n"

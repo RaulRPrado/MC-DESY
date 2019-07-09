@@ -12,7 +12,8 @@ atm="winter"
 zenith="20"
 wobble="0.0"
 n_min=0          # min run
-n_max=100000     # max run (100000) 
+n_max=100000     # max run (100000)
+source_dir=${PWD} 
 readonly runs_per_job=10
 readonly do_submit="true"
 readonly force="false"
@@ -67,7 +68,7 @@ for n in ${all_n}; do
         
         if [ "${do_submit}" = "true" ]; then
             # shellcheck disable=SC2086
-            qsub -P veritas -cwd -l s_cpu=6:00:00 -l h_rss=2G ${send_mail} -N "gro_${wobble}" -e "${log_err}" -o "${log_out}" "./runGrOptics" -run "${runs}" -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}"
+            qsub -P veritas -l s_cpu=6:00:00 -l h_rss=2G ${send_mail} -N "gro_${wobble}" -e "${log_err}" -o "${log_out}" "${source_dir}/runGrOptics" -run "${runs}" -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}" -src "${source_dir}"
         fi
         
         nruns=0

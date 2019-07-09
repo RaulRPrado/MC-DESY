@@ -11,6 +11,7 @@ show_help() {
    echo ""
    echo "Syntax: ./runCARE [ -arg value ]"
    echo "Options:"
+   echo "-src                                    (source directory)"
    echo "-run                                    (run number)"
    echo "-zenith                                 (zenith angle)"
    echo "-wobble                                 (wobble)"
@@ -19,11 +20,6 @@ show_help() {
    echo "-mode                                   (std or rhv)"
    echo ""
 }
-
-# shellcheck disable=SC1091,SC1090
-source "util.sh"
-# shellcheck disable=SC1091,SC1090
-source "setupMC.sh"
 
 run_list="2010000"
 zenith=20
@@ -37,6 +33,10 @@ while :; do
         -h|-\?|--help)
             show_help
             exit
+            ;;
+        -src)
+            source_dir=$2
+            shift
             ;;
         -run)
             run_list=$2
@@ -68,6 +68,11 @@ while :; do
     shift
 done
 
+# shellcheck disable=SC1091,SC1090
+source "${source_dir}/util.sh"
+# shellcheck disable=SC1091,SC1090
+source "${source_dir}/setupMC.sh"
+
 ######################
 # Processing arguments
 atm=$(validate_atm "${atm}")
@@ -76,9 +81,9 @@ zenith=$(validate_zenith "${zenith}")
 wobble=$(validate_wobble "${wobble}")
 mode=$(validate_mode "${mode}")
 
-care_config=$(care_config_file "${mode}")
-care_low_gain_file=$(care_low_gain)
-care_high_gain_file=$(care_high_gain)
+care_config=$(care_config_file "${source_dir}" "${mode}")
+care_low_gain_file=$(care_low_gain "${source_dir}")
+care_high_gain_file=$(care_high_gain "${source_dir}")
 
 for run in ${run_list}; do
     gro_file=$(groptics_file "${run}" "${zenith}" "${atm}" "${wobble}")

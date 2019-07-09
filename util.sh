@@ -35,7 +35,8 @@ remove_file()
 
 config_dir()
 {
-    echo "config"
+    local source_dir=$1
+    echo "${source_dir}/config"
 }
 
 print_runtime()
@@ -274,12 +275,13 @@ gro_pilot_file()
 {
     # Return GrOptics pilot file for a given wobble offset and direction
     # File is created if it does not exists, unless force=true
-    local wobble=$1
-    local wd=$2
-    local force=$3
+    local source_dir=$1
+    local wobble=$2
+    local wd=$3
+    local force=$4
 
     local cfg_dir
-    cfg_dir=$(config_dir)
+    cfg_dir=$(config_dir "${source_dir}")
 
     local file="${cfg_dir}/GrOptics/GrOpticsV6pilot_wob${wobble}_${wd}.txt"
 
@@ -294,9 +296,10 @@ gro_pilot_file()
 
 config_atm()
 {
-    local atm=$1
+    local source_dir=$1
+    local atm=$2
     local cfg_dir
-    cfg_dir=$(config_dir)
+    cfg_dir=$(config_dir "${source_dir}")
     if [ "${atm}" = "summer" ]; then
         echo "${cfg_dir}/GrOptics/Ext_results_VSummer_6_1_6.M5.txt"
     elif [ "${atm}" =  "winter" ]; then
@@ -307,8 +310,9 @@ config_atm()
 
 config_ioreader()
 {
+    local source_dir=$1
     local cfg_dir
-    cfg_dir=$(config_dir)
+    cfg_dir=$(config_dir "${source_dir}")
     echo "${cfg_dir}/GrOptics/IOReaderDetectorConfigV6.txt"
 }
 
@@ -434,8 +438,9 @@ atm_config_file()
 
 care_config_file()
 {
-    local mode=$1
-    cfg_dir=$(config_dir)
+    local source_dir=$1
+    local mode=$2
+    cfg_dir=$(config_dir "${source_dir}")
     if [ "${mode}" = "std" ]; then
         echo "${cfg_dir}/CARE/CARE_V6_Std.txt"
     else
@@ -445,13 +450,15 @@ care_config_file()
 
 care_high_gain()
 {
-    cfg_dir=$(config_dir)
+    local source_dir=$1
+    cfg_dir=$(config_dir "${source_dir}")
     echo "${cfg_dir}/CARE/VERITASHighGainPulseShapeHamamatsuPMT.txt"
 }
 
 care_low_gain()
 {
-    cfg_dir=$(config_dir)
+    local source_dir=$1
+    cfg_dir=$(config_dir "${source_dir}")
     echo "${cfg_dir}/CARE/VERITASLowGainPulseShapeHamamatsuPMT.txt"
 }
 
