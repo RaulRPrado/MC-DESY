@@ -1,29 +1,89 @@
 #!/bin/bash
 
-SECONDS=0
-
 set -o errexit   # abort on nonzero exitstatus
 set -o pipefail  # don't hide errors within pipes
 
+SECONDS=0
 
-source_dir=$(dirname "$0")
-# shellcheck disable=SC1091,SC1090
-source "${source_dir}/util.sh"
-# shellcheck disable=SC1091,SC1090
-source "${source_dir}/loadVBF.sh"
-# shellcheck disable=SC1091,SC1090
-source "${source_dir}/loadRoot.sh"
+echo "Starting mergeCARE"
+
+show_help() {
+   echo ""
+   echo "Syntax: ./mergeCARE [ -arg value ]"
+   echo "Options:"
+   echo "-src                                    (source directory)"
+   echo "-zenith                                 (zenith angle)"
+   echo "-wobble                                 (wobble)"
+   echo "-atm                                    (summer/62 or winter/61)"
+   echo "-nsb                                    (list of NSB levels)"
+   echo "-mode                                   (std or rhv)"
+   echo "-n_max                                  ()"
+   echo "-n_min                                  ()"
+   echo ""
+}
 
 atm="winter"
 zenith="20"     
 wobble="0.25"
 mode="std"
-nsb_list="200"
+nsb="200"
 n_min=0     # min run
 n_max=100000    # max run (100000) 
 
-# shellcheck disable=SC2068
-collect_arguments 7 atm zenith wobble mode nsb_list n_min n_max $@
+while :; do
+    case $1 in
+        -h|-\?|--help)
+            show_help
+            exit
+            ;;
+        -src)
+            source_dir=$2
+            shift
+            ;;
+        -zenith)
+            zenith=$2
+            shift
+            ;;
+        -wobble)
+            wobble=$2
+            shift
+            ;;
+        -atm)
+            atm=$2
+            shift
+            ;;
+        -nsb)
+            nsb=$2
+            shift
+            ;;
+        -mode)
+            mode=$2
+            shift
+            ;;
+        -n_max)
+            n_max=$2
+            shift
+            ;;
+        -n_min)
+            n_min=$2
+            shift
+            ;;
+        *)
+            break
+    esac
+    shift
+done
+
+echo "Source:${source_dir}"
+
+# shellcheck disable=SC1091,SC1090
+source "${source_dir}/util.sh"
+# shellcheck disable=SC1091,SC1090
+source "${source_dir}/setupMC.sh"
+# shellcheck disable=SC1091,SC1090
+source "${source_dir}/loadVBF.sh"
+# shellcheck disable=SC1091,SC1090
+source "${source_dir}/loadRoot.sh"
 
 all_n=$(seq "${n_min}" "${n_max}")
 
@@ -32,28 +92,26 @@ zenith=$(validate_zenith "${zenith}")
 wobble=$(validate_wobble "${wobble}")
 mode=$(validate_mode "${mode}")
 
-for nsb in ${nsb_list}; do
-    files_to_merge="/afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/lists/files_to_merge_${RANDOM}.lis"
-    true > "${files_to_merge}"
-    for n in ${all_n}; do
-        run=$(compute_run "${zenith}" "${n}")
+files_to_merge="${source_dir}/lists/files_to_merge_${RANDOM}.lis"
+true > "${files_to_merge}"
+for n in ${all_n}; do
+    run=$(compute_run "${zenith}" "${n}")
 
-        care_file=$(care_file "${run}" "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
-        if [ -f  "${care_file}.vbf" ]; then
-            echo "${care_file}.vbf" >> "${files_to_merge}"
-        fi        
+    care_file=$(care_file "${run}" "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
+    if [ -f  "${care_file}.vbf" ]; then
+        echo "${care_file}.vbf" >> "${files_to_merge}"
+    fi        
 
-    done
-
-    merged_care_file=$(merged_care_file "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
-    mkdir -p "$(dirname "${merged_care_file}")"
-
-    echo "Merging ..."
-    printf "%s\n" "${merged_care_file}"
-
-    # shellcheck disable=SC2086
-    ${SW_DIR}/eventDisplay/v501_rd/bin/mergeVBF "${files_to_merge}" "${merged_care_file}" 1
 done
+
+merged_care_file=$(merged_care_file "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
+mkdir -p "$(dirname "${merged_care_file}")"
+
+echo "Merging ..."
+printf "%s\n" "${merged_care_file}"
+
+# shellcheck disable=SC2086
+${SW_DIR}/eventDisplay/v501_rd/bin/mergeVBF "${files_to_merge}" "${merged_care_file}" 1
 
 # time_file="merging_time.dat"
 # number_file="merging_number.dat"

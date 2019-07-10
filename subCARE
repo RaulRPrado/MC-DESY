@@ -9,12 +9,12 @@ echo "Starting subCARE"
 source "util.sh"
 
 atm="winter"
-zenith="30"
+zenith="20"
 wobble="0.0"
 mode="std"
 nsb_group="b"
 n_min=0         # min run
-n_max=200000    # max run (100000) 
+n_max=100000    # max run (100000) 
 source_dir=${PWD}
 readonly runs_per_job=10
 readonly do_submit="true"

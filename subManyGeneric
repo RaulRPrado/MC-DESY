@@ -1,4 +1,5 @@
 #!/bin/bash
 
-./subCARE -zenith 35 -wobble 0.0 -nsb_group b
-./subCARE -zenith 35 -wobble 0.0 -nsb_group c
+./subCARE -zenith 20 -wobble 0.5 -nsb_group a
+./subCARE -zenith 20 -wobble 0.5 -nsb_group b
+./subCARE -zenith 20 -wobble 0.5 -nsb_group c

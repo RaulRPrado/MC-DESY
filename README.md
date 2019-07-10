@@ -9,4 +9,6 @@ Author: Raul R Prado (raul.prado@desy.de)
 - 
 
 
+ISSUES:
 
+    - Wrong arguments to collect_arguments function breaks the code without error message
