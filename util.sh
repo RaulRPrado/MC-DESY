@@ -85,7 +85,7 @@ collect_arguments()
         done
         
         if [ "${found_par}" = "false" ] && [ "${arg:0:1}" = "-" ]; then
-            error_exit "collect_arguments: wrong input par"
+            error_exit "collect_arguments: wrong input ${arg}"
         fi
 
     done  

@@ -121,4 +121,9 @@ for run in ${run_list}; do
     printf "CORSIKA size: %s\n" "${corsika_size}"
 done
 
+# ls
+
+# mv "log.err" "/afs/ifh.de/group/cta/scratch/prado/MC-DESY/test.err"
+# mv "log.out" "/afs/ifh.de/group/cta/scratch/prado/MC-DESY/test.out"
+
 print_runtime "$SECONDS"
