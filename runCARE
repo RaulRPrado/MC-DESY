@@ -85,6 +85,10 @@ care_config=$(care_config_file "${source_dir}" "${mode}")
 care_low_gain_file=$(care_low_gain "${source_dir}")
 care_high_gain_file=$(care_high_gain "${source_dir}")
 
+printf "DEBUG: CARE config file %s\n" "${care_config}"
+printf "DEBUG: Pulse shape low gain %s\n" "${care_low_gain_file}"
+printf "DEBUG: Pulse shape high gain %s\n" "${care_high_gain_file}"
+
 for run in ${run_list}; do
     gro_file=$(groptics_file "${run}" "${zenith}" "${atm}" "${wobble}")
     
@@ -101,6 +105,9 @@ for run in ${run_list}; do
         echo "----------------------------------------"
         printf "Running CARE (NSB %s) ...\n" "${nsb}"
 
+        # shellcheck disable=SC2086
+        echo "Running cmd: " ${SW_DIR}/CARE/CameraAndReadout NSBRATEPERPIXEL "0 ${nsb}" HIGHGAINPULSESHAPE "0 ${care_high_gain_file}"  LOWGAINPULSESHAPE "0 ${care_low_gain_file}" --notraces --seed "${run}" --configfile "${care_config}" --outputfile "${care_file}" --inputfile "${gro_file}" --vbfrunnumber 10000 --writepedestals 1
+        
         # shellcheck disable=SC2086
         ${SW_DIR}/CARE/CameraAndReadout NSBRATEPERPIXEL "0 ${nsb}" HIGHGAINPULSESHAPE "0 ${care_high_gain_file}"  LOWGAINPULSESHAPE "0 ${care_low_gain_file}" --notraces --seed "${run}" --configfile "${care_config}" --outputfile "${care_file}" --inputfile "${gro_file}" --vbfrunnumber 10000 --writepedestals 1
                 

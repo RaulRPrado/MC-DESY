@@ -10,10 +10,10 @@ source "util.sh"
 
 atm="winter"
 zenith="20"
-wobble="0.25"
+wobble="0.5"
 mode="std"
-nsb_group="all"
-n_max=100000
+nsb_group="b"
+n_max=10000
 source_dir=${PWD}
 
 # shellcheck disable=SC2068

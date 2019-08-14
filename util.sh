@@ -442,7 +442,8 @@ care_config_file()
     local mode=$2
     cfg_dir=$(config_dir "${source_dir}")
     if [ "${mode}" = "std" ]; then
-        echo "${cfg_dir}/CARE/CARE_V6_Std.txt"
+        # echo "${cfg_dir}/CARE/CARE_V6_Std.txt"
+        echo "${cfg_dir}/CARE/CARE_VERITAS_AfterPMTUpgrade_V6Nahee_withPMTransitTimeSpread.cfg"
     else
         echo "${cfg_dir}/CARE/CARE_V6_RHV.txt"
     fi

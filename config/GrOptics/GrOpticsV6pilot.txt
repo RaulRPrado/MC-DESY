@@ -48,9 +48,9 @@ wobble East : WOBBLE 0.5 0.0 0.0 31.675
 
 array configuration file
  ARRAYCONFIG <filename: default ./Config/arrayConfig.cfg>
- ARRAYCONFIG ./Config/VERITAS_NewArray.cfg
+* ARRAYCONFIG ./Config/VERITAS_NewArray.cfg
 RAUL
-* ARRAYCONFIG /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/config/GrOptics/GrOpticsVERITASArrayConfigV6.txt 
+ ARRAYCONFIG /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/config/GrOptics/GrOpticsVERITASArrayConfigV6.txt 
  ARRAYCONFIG ./Config/arrayConfig.cfg
 
 random number seed for TRandom3: default seed = 0, set by machine clock.
