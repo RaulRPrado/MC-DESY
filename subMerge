@@ -12,8 +12,8 @@ atm="winter"
 zenith="20"
 wobble="0.5"
 mode="std"
-nsb_group="b"
-n_max=10000
+nsb_group="a"
+n_max=10001
 source_dir=${PWD}
 
 # shellcheck disable=SC2068

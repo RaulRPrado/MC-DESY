@@ -12,25 +12,28 @@ atm="winter"
 zenith="20"
 wobble="0.5"
 mode="std"
-nsb_group="b"
+nsb_group="a"
 n_min=0         # min run
-n_max=10000     # max run (100000) 
+n_max=10001     # max run (100000) 
 source_dir=${PWD}
 readonly runs_per_job=10
 readonly do_submit="true"
-readonly force="true"
+readonly force="false"
 readonly n_mail=5
 
 # shellcheck disable=SC2068
 collect_arguments 7 atm zenith wobble mode nsb_group n_min n_max $@
 
 all_n=$(seq "${n_min}" "${n_max}")
+# all_n="25075"
+# all_n="87700"
 
 atm=$(validate_atm "${atm}")
 zenith=$(validate_zenith "${zenith}")
 wobble=$(validate_wobble "${wobble}")
 mode=$(validate_mode "${mode}")
 nsb_list=$(nsb_list_from_group "${nsb_group}")
+# nsb_list="200"
 
 njobs=0
 nruns=0
