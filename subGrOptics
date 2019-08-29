@@ -11,8 +11,8 @@ source "util.sh"
 atm="winter"
 zenith="20"
 wobble="0.5"
-n_min=1        # min run
-n_max=10001     # max run (100000)
+n_min=0        # min run
+n_max=100001     # max run (100000)
 source_dir=${PWD} 
 readonly runs_per_job=20
 readonly do_submit="true"
@@ -23,8 +23,6 @@ readonly n_mail=10
 collect_arguments 4 atm zenith wobble n_max $@
 
 all_n=$(seq "${n_min}" "${n_max}")
-# all_n="63687"
-# all_n="25075"
 
 atm=$(validate_atm "${atm}")
 zenith=$(validate_zenith "${zenith}")
