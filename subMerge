@@ -13,7 +13,7 @@ zenith="20"
 wobble="0.5"
 mode="std"
 nsb_group="a"
-n_max=10001
+n_max=100001
 source_dir=${PWD}
 
 # shellcheck disable=SC2068
