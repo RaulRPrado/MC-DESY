@@ -17,7 +17,7 @@ source_dir=${PWD}
 readonly runs_per_job=20
 readonly do_submit="true"
 readonly force="false"
-readonly n_mail=10
+readonly n_mail=5
 
 # shellcheck disable=SC2068
 collect_arguments 4 atm zenith wobble n_max $@

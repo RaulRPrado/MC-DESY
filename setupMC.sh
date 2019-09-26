@@ -8,7 +8,7 @@ if [ ! -z "${LD_LIBRARY_PATH}" ]; then
 fi
 
 # shellcheck disable=SC1091
-source /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/loadROOT.sh
+source /afs/ifh.de/group/cta/scratch/prado/MC-DESY/loadRoot.sh
 
 export SW_DIR="/afs/ifh.de/group/cta/scratch/prado/sw"
 

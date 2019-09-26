@@ -24,11 +24,9 @@ show_help() {
 
 atm="winter"
 zenith="20"     
-wobble="0.25"
+wobble="1.0"
 mode="std"
 nsb="200"
-n_min=0     # min run
-n_max=100000    # max run (100000) 
 
 while :; do
     case $1 in
@@ -60,14 +58,6 @@ while :; do
             mode=$2
             shift
             ;;
-        -n_max)
-            n_max=$2
-            shift
-            ;;
-        -n_min)
-            n_min=$2
-            shift
-            ;;
         *)
             break
     esac
@@ -85,34 +75,21 @@ source "${source_dir}/loadVBF.sh"
 # shellcheck disable=SC1091,SC1090
 source "${source_dir}/loadRoot.sh"
 
-all_n=$(seq "${n_min}" "${n_max}")
-
 atm=$(validate_atm "${atm}")
 zenith=$(validate_zenith "${zenith}")
 wobble=$(validate_wobble "${wobble}")
 mode=$(validate_mode "${mode}")
 
-files_to_merge="${source_dir}/lists/files_to_merge_${RANDOM}.lis"
-true > "${files_to_merge}"
-for n in ${all_n}; do
-    run=$(compute_run "${zenith}" "${n}")
-
-    care_file=$(care_file "${run}" "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
-    if [ -f  "${care_file}.vbf" ]; then
-        echo "${care_file}.vbf" >> "${files_to_merge}"
-    fi        
-
-done
-
 merged_care_file=$(merged_care_file "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
-mkdir -p "$(dirname "${merged_care_file}")"
+compressed_care_file=$(compressed_care_file "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
 
-echo "Merging ..."
-printf "%s\n" "${merged_care_file}"
+merged_dir=$(merged_root_name "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
 
-# shellcheck disable=SC2086
-${SW_DIR}/eventDisplay/v501_rd/bin/mergeVBF "${files_to_merge}" "${merged_care_file}" 1
+mkdir -p "${merged_dir}"
 
-rm "${files_to_merge}"
+mv "${merged_care_file}" "${merged_dir}"
+
+tar -czvf "${compressed_care_file}" "${merged_dir}"
 
 print_runtime "${SECONDS}"
+

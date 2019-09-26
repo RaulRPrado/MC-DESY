@@ -496,7 +496,7 @@ care_log()
     echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/care_${mode}/wobble${wobble}/Log/NSB${nsb}/log_${run}.${label}"
 }
 
-merged_care_file()
+merged_root_name()
 {
     local zenith=$1
     local atm=$2
@@ -508,7 +508,37 @@ merged_care_file()
     local zenith_dir
     zenith_dir=$(zenith_directory "${zenith}")
 
-    echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/merged/Data/gamma_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz.vbf"
+    echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/merged/Data/gamma_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz"
+}
+
+merged_care_file()
+{
+    local zenith=$1
+    local atm=$2
+    local wobble=$3
+    local nsb=$4
+    local mode=$5
+    local atm_dir
+    atm_dir=$(atm_directory "${atm}")
+    local zenith_dir
+    zenith_dir=$(zenith_directory "${zenith}")
+    name=$(merged_root_name "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
+    echo "${name}.vbf"
+}
+
+compressed_care_file()
+{
+    local zenith=$1
+    local atm=$2
+    local wobble=$3
+    local nsb=$4
+    local mode=$5
+    local atm_dir
+    atm_dir=$(atm_directory "${atm}")
+    local zenith_dir
+    zenith_dir=$(zenith_directory "${zenith}")
+    name=$(merged_root_name "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
+    echo "${name}.tar.gz"
 }
 
 merged_care_log()
@@ -525,4 +555,20 @@ merged_care_log()
     zenith_dir=$(zenith_directory "${zenith}")
 
     echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/merged/Log/log_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz.${label}"
+}
+
+compressed_care_log()
+{
+    local zenith=$1
+    local atm=$2
+    local wobble=$3
+    local nsb=$4
+    local mode=$5
+    local label=$6
+    local atm_dir
+    atm_dir=$(atm_directory "${atm}")
+    local zenith_dir
+    zenith_dir=$(zenith_directory "${zenith}")
+
+    echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/merged/Log/compressed_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz.${label}"
 }
