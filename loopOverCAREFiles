@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source /afs/ifh.de/group/cta/scratch/prado/MC-VERITAS/util.sh
+source /afs/ifh.de/group/cta/scratch/prado/MC-DESY/util.sh
 
 atm="winter"
 zenith="20"
@@ -17,7 +17,7 @@ for wobble in ${wobble_list}; do
     wobble=$(validate_wobble "${wobble}")
 
     for nsb in ${nsb_list}; do
-        care_file=$(merged_care_file "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
+        care_file=$(compressed_care_file "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
         if [ -f "${care_file}" ]; then
             printf "File:%s\n" "${care_file}"
             # do something here
