@@ -538,7 +538,7 @@ compressed_care_file()
     local zenith_dir
     zenith_dir=$(zenith_directory "${zenith}")
     name=$(merged_root_name "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
-    echo "${name}.tar.gz"
+    echo "${name}.vbf.bz2"
 }
 
 merged_care_log()

@@ -81,15 +81,17 @@ wobble=$(validate_wobble "${wobble}")
 mode=$(validate_mode "${mode}")
 
 merged_care_file=$(merged_care_file "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
-compressed_care_file=$(compressed_care_file "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
+# compressed_care_file=$(compressed_care_file "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
 
-merged_dir=$(merged_root_name "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
+# merged_dir=$(merged_root_name "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
 
-mkdir -p "${merged_dir}"
+# mkdir -p "${merged_dir}"
 
-mv "${merged_care_file}" "${merged_dir}"
+# mv "${merged_care_file}" "${merged_dir}"
 
-tar -czvf "${compressed_care_file}" "${merged_dir}"
+# tar -czvf "${compressed_care_file}" "${merged_dir}"
+
+bzip2 -z "${merged_care_file}"
 
 print_runtime "${SECONDS}"
 

@@ -30,7 +30,7 @@ for nsb in ${nsb_list}; do
     log_out=$(compressed_care_log "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}" "out")
     remove_file "${log_err}" "${log_out}" || true
     mkdir -p "$(dirname "${log_out}")"
-
+    
     # shellcheck disable=SC2086
     qsub -P veritas -l s_cpu=24:00:00 -l h_rss=4G ${send_mail} -N "comp_${wobble}" -e "${log_err}" -o "${log_out}" "${source_dir}/compressCARE" -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}" -mode "${mode}" -nsb "${nsb}" -src "${source_dir}"
 done
