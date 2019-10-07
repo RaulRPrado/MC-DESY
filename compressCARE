@@ -5,7 +5,7 @@ set -o pipefail  # don't hide errors within pipes
 
 SECONDS=0
 
-echo "Starting mergeCARE"
+echo "Starting compressCARE"
 
 show_help() {
     echo ""

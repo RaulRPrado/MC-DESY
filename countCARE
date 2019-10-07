@@ -10,18 +10,25 @@ atm="winter"
 zenith="20"
 mode="std"
 nsb_group="all"
+wobble=""
 
 # shellcheck disable=SC2068
-collect_arguments 4 atm zenith mode nsb_group $@
+collect_arguments 5 atm zenith mode nsb_group wobble $@
 
 atm=$(validate_atm "${atm}")
 zenith=$(validate_zenith "${zenith}")
 mode=$(validate_mode "${mode}")
 nsb_list=$(nsb_list_from_group "${nsb_group}")
 
+if [ "${wobble}" = "" ]; then
+    wobble_list="0 0.25 0.5 0.75 1.0 1.25 1.5 1.75 2.0"
+else
+    wobble_list="${wobble}"
+fi
+
 run=$(compute_run "${zenith}" "10")
 
-for wobble in 0 0.25 0.5 0.75 1.0 1.25 1.5 1.75 2.0; do
+for wobble in ${wobble_list}; do
     wob=$(validate_wobble "${wobble}")
 
     printf "\n Wobble %s\n" "${wob}"
