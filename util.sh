@@ -131,8 +131,11 @@ wobble_direction()
 validate_zenith()
 {
     local zenith=$1
-    for z in 0 20 30 35 40 45 50 55 60 65 70; do
+    for z in 0 00 20 30 35 40 45 50 55 60 65 70; do
         if [ "${zenith}" = "${z}" ]; then
+            if [ "${zenith}" = "0" ]; then
+                z=00
+            fi
             echo "${z}"
             return
         fi
@@ -215,7 +218,11 @@ compute_run()
     # and sequencial number i
     local zenith=$1
     local i=$2
-    echo "${zenith}$(( i + 5000 ))"
+    if [ "${zenith}" == "00" ]; then
+        echo "10$(( i + 5000 ))"
+    else
+        echo "${zenith}$(( i + 5000 ))"
+    fi
 }
 
 

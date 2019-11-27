@@ -23,6 +23,7 @@ zenith=$(validate_zenith "${zenith}")
 wobble=$(validate_wobble "${wobble}")
 mode=$(validate_mode "${mode}")
 nsb_list=$(nsb_list_from_group "${nsb_group}")
+# nsb_list="50 100 130 160 200 250 300 400"
 
 for nsb in ${nsb_list}; do
     send_mail="-m ae" # splitting is necessary

@@ -115,7 +115,11 @@ for run in ${run_list}; do
 
     # shellcheck disable=SC2086
     ${SW_DIR}/corsikaSimulationTools/corsikaIOreader -queff 0.50 -cors "${corsika_file}" -seed "${run}" -grisu stdout -abs "${cfg_atm}" -cfg "${cfg_ioreader}" | ${SW_DIR}/GrOptics/grOptics -of "${gro_file}" -p "${gro_pilot}"
-        
+      
+    # Testing new corsikaIOreader  
+    # ${SW_DIR}/corsikaSimulationTools/corsikaIOreader -queff 0.50 -cors "${corsika_file}" -seed "${run}" -grisu stdout -abs "${cfg_atm}" -cfg "${cfg_ioreader}"
+    #| ${SW_DIR}/GrOptics/grOptics -of "${gro_file}" -p "${gro_pilot}"
+
     corsika_size=$(file_size "${corsika_file}")
 
     rm "${corsika_file}"
