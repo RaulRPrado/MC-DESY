@@ -9,8 +9,8 @@ echo "Starting subCompress"
 source "util.sh"
 
 atm="winter"
-zenith="20"
-wobble="0.5"
+zenith=""
+wobble=""
 mode="std"
 nsb_group="all"
 source_dir=${PWD}

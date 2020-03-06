@@ -9,11 +9,11 @@ echo "Starting subMerge"
 source "util.sh"
 
 atm="winter"
-zenith="0"
-wobble="0.5"
+zenith=""
+wobble=""
 mode="std"
 nsb_group="all"
-n_max=40001
+n_max=200001
 source_dir=${PWD}
 nsb_list=""
 

@@ -9,7 +9,7 @@ echo "Starting compressCARE"
 
 show_help() {
     echo ""
-    echo "Syntax: ./mergeCARE [ -arg value ]"
+    echo "Syntax: ./compressCARE [ -arg value ]"
     echo "Options:"
     echo "-src                                    (source directory)"
     echo "-zenith                                 (zenith angle)"
@@ -17,8 +17,6 @@ show_help() {
     echo "-atm                                    (summer/62 or winter/61)"
     echo "-nsb                                    (list of NSB levels)"
     echo "-mode                                   (std or rhv)"
-    echo "-n_max                                  ()"
-    echo "-n_min                                  ()"
     echo ""
 }
 
