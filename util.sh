@@ -526,9 +526,9 @@ merged_care_file()
     local nsb=$4
     local mode=$5
     local atm_dir
-    atm_dir=$(atm_directory "${atm}")
-    local zenith_dir
-    zenith_dir=$(zenith_directory "${zenith}")
+    # atm_dir=$(atm_directory "${atm}")
+    # local zenith_dir
+    # zenith_dir=$(zenith_directory "${zenith}")
     name=$(merged_root_name "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
     echo "${name}.vbf"
 }

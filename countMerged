@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -o errexit   # abort on nonzero exitstatus
+set -o pipefail  # don't hide errors within pipes
+
+# shellcheck disable=SC1091,1090
+source "util.sh"
+
+atm="winter"
+zenith="20"
+mode="std"
+wobble=""
+
+# shellcheck disable=SC2068
+collect_arguments 4 atm zenith mode wobble $@
+
+atm=$(validate_atm "${atm}")
+zenith=$(validate_zenith "${zenith}")
+mode=$(validate_mode "${mode}")
+
+if [ "${wobble}" = "" ]; then
+    wobble_list="0 0.25 0.5 0.75 1.0 1.25 1.5 1.75 2.0"
+else
+    wobble_list="${wobble}"
+fi
+
+for wobble in ${wobble_list}; do
+    wob=$(validate_wobble "${wobble}")
+
+    printf "\n Wobble %s\n" "${wob}"
+    merged_care_file=$(merged_care_file "${zenith}" "${atm}" "${wob}" "100" "${mode}")
+    merged_care_dir=$(dirname "${merged_care_file}")
+    
+    ls "${merged_care_dir}/"*"${wob}"* -lhS
+    n=$(ls "${merged_care_dir}/"*"${wob}"* | wc -l)
+    printf "\n %s files\n" "${n}"
+done
