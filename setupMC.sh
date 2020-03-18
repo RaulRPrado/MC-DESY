@@ -22,3 +22,7 @@ export PATH=${VBF_DIR}/bin:$PATH
 # ROBAST
 export ROBAST_DIR="${SW_DIR}/GrOptics/v1.5.0_beta"
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROBAST_DIR
+
+######
+# zstd
+export PATH=/afs/ifh.de/group/cta/VERITAS/software/bin/zstd/:${PATH}
