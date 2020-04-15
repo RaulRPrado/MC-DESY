@@ -16,7 +16,7 @@ n_max=200001     # max run (100000)
 source_dir=${PWD} 
 readonly runs_per_job=20
 readonly do_submit="true"
-readonly force="true"
+readonly force="false"
 readonly n_mail=5
 
 # shellcheck disable=SC2068
