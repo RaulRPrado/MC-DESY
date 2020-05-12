@@ -13,7 +13,8 @@ zenith=""
 wobble=""
 mode="std"
 nsb_group="all"
-n_max=100001
+n_max=100000
+n_per_file=20000
 source_dir=${PWD}
 nsb_list=""
 
@@ -28,13 +29,22 @@ if [ "${nsb_list}" = "" ]; then
     nsb_list=$(nsb_list_from_group "${nsb_group}")
 fi
 
-for nsb in ${nsb_list}; do
-    send_mail="-m ae" # splitting is necessary
-    log_err=$(merged_care_log "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}" "err")
-    log_out=$(merged_care_log "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}" "out")
-    remove_file "${log_err}" "${log_out}" || true
-    mkdir -p "$(dirname "${log_out}")"
+n_merge_max=$((n_max / n_per_file))
 
-    # shellcheck disable=SC2086
-    qsub -P veritas -l s_cpu=48:00:00 -l h_rss=4G ${send_mail} -N "merge_${wobble}" -e "${log_err}" -o "${log_out}" "${source_dir}/mergeCARE" -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}" -mode "${mode}" -nsb "${nsb}" -n_max "${n_max}" -src "${source_dir}"
+for n_merge in $(seq 1 $n_merge_max); do
+    this_n_min=$(( (n_merge-1) * n_per_file + 1)) 
+    this_n_max=$((n_merge * n_per_file)) 
+    printf "n merge %s\n" "${n_merge}"
+    printf "files from %s to %s\n" "${this_n_min}" "${this_n_max}"
+
+    for nsb in ${nsb_list}; do
+        send_mail="-m ae" # splitting is necessary
+        log_err=$(merged_care_log "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}" "err" "${n_merge}")
+        log_out=$(merged_care_log "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}" "out" "${n_merge}")
+        remove_file "${log_err}" "${log_out}" || true
+        mkdir -p "$(dirname "${log_out}")"
+
+        # shellcheck disable=SC2086
+        qsub -P veritas -l s_cpu=23:59:00 -l h_rss=4G ${send_mail} -N "merge_${wobble}" -e "${log_err}" -o "${log_out}" "${source_dir}/mergeCARE" -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}" -mode "${mode}" -nsb "${nsb}" -n_merge "${n_merge}" -n_min "${this_n_min}" -n_max "${this_n_max}" -src "${source_dir}"    
+    done
 done

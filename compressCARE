@@ -17,6 +17,7 @@ show_help() {
     echo "-atm                                    (summer/62 or winter/61)"
     echo "-nsb                                    (list of NSB levels)"
     echo "-mode                                   (std or rhv)"
+    echo "-n_merge                                ()"
     echo ""
 }
 
@@ -25,6 +26,7 @@ zenith="20"
 wobble="1.0"
 mode="std"
 nsb="200"
+n_merge=""
 
 while :; do
     case $1 in
@@ -56,6 +58,10 @@ while :; do
             mode=$2
             shift
             ;;
+        -n_merge)
+            n_merge=$2
+            shift
+            ;;
         *)
             break
     esac
@@ -78,7 +84,7 @@ zenith=$(validate_zenith "${zenith}")
 wobble=$(validate_wobble "${wobble}")
 mode=$(validate_mode "${mode}")
 
-merged_care_file=$(merged_care_file "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
+merged_care_file=$(merged_care_file "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}" "${n_merge}")
 
 # compressed_care_file=$(compressed_care_file "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
 # merged_dir=$(merged_root_name "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")

@@ -525,9 +525,15 @@ merged_care_file()
     local wobble=$3
     local nsb=$4
     local mode=$5
+    local n_merge=$6
     local atm_dir
     name=$(merged_root_name "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
-    echo "${name}.vbf"
+
+    if [ "${n_merge}" == "" ]; then
+        echo "${name}.vbf"
+    else
+        echo "${name}_${n_merge}.vbf" 
+    fi
 }
 
 compressed_care_file()
@@ -550,12 +556,17 @@ merged_care_log()
     local nsb=$4
     local mode=$5
     local label=$6
+    local n_merge=$7
     local atm_dir
     atm_dir=$(atm_directory "${atm}")
     local zenith_dir
     zenith_dir=$(zenith_directory "${zenith}")
 
-    echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/merged/Log/log_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz.${label}"
+    if [ "${n_merge}" == "" ]; then
+        echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/merged/Log/log_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz.${label}"
+    else
+        echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/merged/Log/log_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz_${n_merge}.${label}"
+    fi
 }
 
 compressed_care_log()

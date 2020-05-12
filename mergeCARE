@@ -29,6 +29,7 @@ mode="std"
 nsb="200"
 n_min=0     # min run
 n_max=100000    # max run (100000) 
+n_merge=""
 
 while :; do
     case $1 in
@@ -68,6 +69,10 @@ while :; do
             n_min=$2
             shift
             ;;
+        -n_merge)
+            n_merge=$2
+            shift
+            ;;
         *)
             break
     esac
@@ -104,7 +109,7 @@ for n in ${all_n}; do
 
 done
 
-merged_care_file=$(merged_care_file "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
+merged_care_file=$(merged_care_file "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}" "${n_merge}")
 mkdir -p "$(dirname "${merged_care_file}")"
 
 echo "Merging ..."
