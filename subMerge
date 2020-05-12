@@ -8,12 +8,12 @@ echo "Starting subMerge"
 # shellcheck disable=SC1090,SC1091
 source "util.sh"
 
-atm="winter"
+atm="summer"
 zenith=""
 wobble=""
 mode="std"
 nsb_group="all"
-n_max=200001
+n_max=100001
 source_dir=${PWD}
 nsb_list=""
 

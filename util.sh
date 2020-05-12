@@ -336,7 +336,7 @@ corsika_directory_zip()
     local atm_dir
     atm_dir=$(atm_directory "${atm}")
 
-    echo "/lustre/fs23/group/veritas/simulations/V6_FLWO/OSG_CORSIKA/${atm_dir}/corsika/${zenith_dir}"    
+    echo "/lustre/fs23/group/veritas/simulations/V6_FLWO/OSG_CORSIKA/${atm_dir}/corsika/${zenith_dir}/telfiles"    
 }
 
 corsika_file_zip()

@@ -8,11 +8,11 @@ echo "Starting subGrOptics"
 # shellcheck disable=SC1091,SC1090
 source "util.sh"
 
-atm="winter"
+atm="summer"
 zenith=""
 wobble=""
 n_min=0        # min run
-n_max=200001     # max run (100000)
+n_max=100001     # max run (100000)
 source_dir=${PWD} 
 readonly runs_per_job=20
 readonly do_submit="true"
@@ -68,7 +68,7 @@ for n in ${all_n}; do
         
         if [ "${do_submit}" = "true" ]; then
             # shellcheck disable=SC2086
-            qsub -P veritas -l s_cpu=12:00:00 -l h_rss=2G ${send_mail} -N "gro_${wobble}" -e "${log_err}" -o "${log_out}" "${source_dir}/runGrOptics" -run "${runs}" -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}" -src "${source_dir}"
+            qsub -P veritas -l s_cpu=23:59:00 -l h_rss=2G ${send_mail} -N "gro_${wobble}" -e "${log_err}" -o "${log_out}" "${source_dir}/runGrOptics" -run "${runs}" -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}" -src "${source_dir}"
         fi
         
         nruns=0

@@ -8,13 +8,13 @@ echo "Starting subCARE"
 # shellcheck disable=SC1091,SC1090
 source "util.sh"
 
-atm="winter"
+atm="summer"
 zenith=""
 wobble=""
 mode="std"
 nsb_group=""
 n_min=0         # min run
-n_max=200001     # max run (100000) 
+n_max=100001     # max run (100000) 
 source_dir=${PWD}
 readonly runs_per_job=10
 readonly do_submit="true"

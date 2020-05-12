@@ -8,7 +8,7 @@ echo "Starting subCompress"
 # shellcheck disable=SC1090,SC1091
 source "util.sh"
 
-atm="winter"
+atm="summer"
 zenith=""
 wobble=""
 mode="std"
