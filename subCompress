@@ -29,7 +29,8 @@ for n_merge in $(seq 1 $n_merge_max); do
     printf "n merge %s\n" "${n_merge}"
 
     for nsb in ${nsb_list}; do
-        send_mail="-m ae" # splitting is necessary
+        # send_mail="-m ae" # splitting is necessary
+        send_mail="" # splitting is necessary
         log_err=$(compressed_care_log "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}" "err" "${n_merge}")
         log_out=$(compressed_care_log "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}" "out" "${n_merge}")
         remove_file "${log_err}" "${log_out}" || true

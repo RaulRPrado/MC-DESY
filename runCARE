@@ -89,18 +89,31 @@ printf "DEBUG: CARE config file %s\n" "${care_config}"
 printf "DEBUG: Pulse shape low gain %s\n" "${care_low_gain_file}"
 printf "DEBUG: Pulse shape high gain %s\n" "${care_high_gain_file}"
 
+# TMP DIR
+if [ "${TMPDIR}" == "" ]; then
+    tmp_dir="${PWD}"
+else
+    tmp_dir="${TMPDIR}"
+fi
+
 for run in ${run_list}; do
     gro_file=$(groptics_file "${run}" "${zenith}" "${atm}" "${wobble}")
-    
+    gro_file_loc="${tmp_dir}/$(basename ${gro_file})"
+
     if [ ! -f "${gro_file}" ]; then
         printf "GrOptics file not found for run %s\n" "${run}"
         continue
     fi
 
+    printf "Copying gro file to %s\n" "${gro_file_loc}"
+    cp "${gro_file}" "${gro_file_loc}"
+
     for nsb in ${nsb_list}; do
         care_file=$(care_file "${run}" "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
+        care_file_loc="${tmp_dir}/$(basename ${care_file})"
         mkdir -p "$(dirname "${care_file}")"
         printf "CARE file:%s\n" "${care_file}"
+        printf "CARE file (LOC):%s\n" "${care_file_loc}"
 
         echo "----------------------------------------"
         printf "Running CARE (NSB %s) ...\n" "${nsb}"
@@ -109,8 +122,11 @@ for run in ${run_list}; do
         echo "Running cmd: " ${SW_DIR}/CARE/CameraAndReadout NSBRATEPERPIXEL "0 ${nsb}" HIGHGAINPULSESHAPE "0 ${care_high_gain_file}"  LOWGAINPULSESHAPE "0 ${care_low_gain_file}" --notraces --seed "${run}" --configfile "${care_config}" --outputfile "${care_file}" --inputfile "${gro_file}" --vbfrunnumber 10000 --writepedestals 1
         
         # shellcheck disable=SC2086
-        ${SW_DIR}/CARE/CameraAndReadout NSBRATEPERPIXEL "0 ${nsb}" HIGHGAINPULSESHAPE "0 ${care_high_gain_file}"  LOWGAINPULSESHAPE "0 ${care_low_gain_file}" --notraces --seed "${run}" --configfile "${care_config}" --outputfile "${care_file}" --inputfile "${gro_file}" --vbfrunnumber 10000 --writepedestals 1
+        ${SW_DIR}/CARE/CameraAndReadout NSBRATEPERPIXEL "0 ${nsb}" HIGHGAINPULSESHAPE "0 ${care_high_gain_file}"  LOWGAINPULSESHAPE "0 ${care_low_gain_file}" --notraces --seed "${run}" --configfile "${care_config}" --outputfile "${care_file_loc}" --inputfile "${gro_file}" --vbfrunnumber 10000 --writepedestals 1
         
+        printf "Moving output to %s\n" "${care_file}"
+        mv "${care_file_loc}" "${care_file}"
+
         echo "CARE DONE-------------------------------"
     done # nsb 
 done # run
