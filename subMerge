@@ -46,6 +46,6 @@ for n_merge in $(seq 1 $n_merge_max); do
         mkdir -p "$(dirname "${log_out}")"
 
         # shellcheck disable=SC2086
-        qsub -P veritas -l s_cpu=23:59:00 -l h_rss=4G ${send_mail} -N "merge_${wobble}" -e "${log_err}" -o "${log_out}" "${source_dir}/mergeCARE" -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}" -mode "${mode}" -nsb "${nsb}" -n_merge "${n_merge}" -n_min "${this_n_min}" -n_max "${this_n_max}" -src "${source_dir}"    
+        qsub -P veritas -l s_cpu=11:59:00 -l h_rss=1G ${send_mail} -N "merge_${wobble}" -e "${log_err}" -o "${log_out}" "${source_dir}/mergeCARE" -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}" -mode "${mode}" -nsb "${nsb}" -n_merge "${n_merge}" -n_min "${this_n_min}" -n_max "${this_n_max}" -src "${source_dir}"    
     done
 done

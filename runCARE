@@ -125,7 +125,8 @@ for run in ${run_list}; do
         ${SW_DIR}/CARE/CameraAndReadout NSBRATEPERPIXEL "0 ${nsb}" HIGHGAINPULSESHAPE "0 ${care_high_gain_file}"  LOWGAINPULSESHAPE "0 ${care_low_gain_file}" --notraces --seed "${run}" --configfile "${care_config}" --outputfile "${care_file_loc}" --inputfile "${gro_file}" --vbfrunnumber 10000 --writepedestals 1
         
         printf "Moving output to %s\n" "${care_file}"
-        mv "${care_file_loc}" "${care_file}"
+        mv "${care_file_loc}.root" "${care_file}.root"
+        mv "${care_file_loc}.vbf" "${care_file}.vbf"
 
         echo "CARE DONE-------------------------------"
     done # nsb 
