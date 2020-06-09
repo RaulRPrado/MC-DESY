@@ -154,6 +154,17 @@ validate_atm()
     fi
 }
 
+get_atm_number()
+{
+    if [ "$1" == "summer" ] || [ "$1" == "62" ]; then
+        echo "62"
+    elif [ "$1" == "winter" ] || [ "$1" == "61" ]; then
+        echo "61"
+    else
+        error_exit "Atm option is invalid - aborting"
+    fi
+}
+
 validate_wobble()
 {
     # Validate wobble, return in a fixed format
@@ -210,7 +221,6 @@ nsb_list_from_group()
         error_exit "NSB group invalid"
     fi
 }
-
 
 compute_run()
 {

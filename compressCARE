@@ -17,15 +17,15 @@ show_help() {
     echo "-atm                                    (summer/62 or winter/61)"
     echo "-nsb                                    (list of NSB levels)"
     echo "-mode                                   (std or rhv)"
-    echo "-n_merge                                ()"
+    echo "-n_merge                                (number to label the split)"
     echo ""
 }
 
-atm="winter"
-zenith="20"     
-wobble="1.0"
+atm=""
+zenith=""
+wobble=""
 mode="std"
-nsb="200"
+nsb=""
 n_merge=""
 
 while :; do
