@@ -11,6 +11,7 @@ show_help() {
     echo "Options:"
     echo "-zenith                                 (zenith angle)"
     echo "-wobble                                 (wobble)"
+    echo "-nsb                                    (nsb)"
     echo "-atm                                    (summer/62 or winter/61)"
     echo "-split_max                              (max number of split files)"
     echo ""
@@ -19,6 +20,7 @@ show_help() {
 atm=""
 zenith=""
 wobble="all"
+nsb="all"
 split_max="10"
 
 while :; do
@@ -33,6 +35,10 @@ while :; do
             ;;
         -wobble)
             wobble=$2
+            shift
+            ;;
+        -nsb)
+            nsb=$2
             shift
             ;;
         -atm)
@@ -68,12 +74,18 @@ else
     wobble_list="${wobble}"
 fi
 
+if [ "${nsb}" = "all" ]; then
+    nsb_list="50 75 100 130 160 200 250 300 350 400 450"
+else
+    nsb_list="${nsb}"
+fi
+
 for wob in ${wobble_list}; do
     printf "Wobble %s\n" "${wob}"
     wob=$(validate_wobble "${wob}")
 
-    $EVNDISPSYS/scripts/VTS/IRF.production.sh "CARE" "ANALYSETABLES" "${zenith}" "${wobble}" \
-        "${split_max}" "V6" "${atm}" 
+    $EVNDISPSYS/scripts/VTS/IRF.production.sh "CARE" "ANALYSETABLES" "${zenith}" "${wob}" \
+        "${nsb_list}" "${split_max}" "V6" "${atm}" 
 done
 
 echo "subEvndisp DONE"
