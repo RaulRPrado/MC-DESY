@@ -2,3 +2,4 @@ config/GrOptics/*wob*
 lists/**
 old
 old/*
+figures/*
