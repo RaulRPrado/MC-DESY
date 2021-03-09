@@ -1,0 +1,50 @@
+#!/bin/bash
+
+set -o errexit   # abort on nonzero exitstatus
+set -o pipefail  # don't hide errors within pipes
+
+echo "Starting changeGroup"
+
+# shellcheck disable=SC1091,SC1090
+source "util.sh"
+
+atm="summer"
+zenith=""
+wobble=""
+n_min=0        # min run
+n_max=200001     # max run (100000)
+source_dir=${PWD} 
+readonly runs_per_job=100
+readonly do_submit="true"
+readonly force="false"
+readonly n_mail=5
+
+# shellcheck disable=SC2068
+collect_arguments 4 atm zenith wobble n_max $@
+
+all_n=$(seq "${n_min}" "${n_max}")
+
+atm=$(validate_atm "${atm}")
+zenith=$(validate_zenith "${zenith}")
+all_wobble="0.0 0.25 0.5 0.75 1.0 1.25 1.5 1.75 2.0 2.8"
+
+# shellcheck disable=SC2086
+for wobble in ${all_wobble}; do 
+    echo "Starting wobble ${wobble}"
+
+    gro_file=$(groptics_file "10" "${zenith}" "${atm}" "${wobble}")
+    gro_dir=$(dirname "${gro_file}")
+    if [ ! -d "${gro_dir}" ]; then
+        echo "Directory ${gro_dir} does not exist - skipping"
+        continue
+    fi
+
+    for n in ${all_n}; do
+        run=$(compute_run "${zenith}" "${n}")
+        gro_file=$(groptics_file "${run}" "${zenith}" "${atm}" "${wobble}")
+        if [ -f "${gro_file}" ]; then
+            chgrp veritas "${gro_file}"
+        fi
+    done
+
+done

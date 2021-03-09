@@ -8,16 +8,16 @@ echo "Starting subGrOptics"
 # shellcheck disable=SC1091,SC1090
 source "util.sh"
 
-atm="summer"
+atm="winter"
 zenith=""
 wobble=""
-n_min=0        # min run
-n_max=100001     # max run (100000)
+n_min=0             # min run
+n_max=100000        # max run (100000)
 source_dir=${PWD} 
 readonly runs_per_job=100
 readonly do_submit="true"
 readonly force="false"
-readonly n_mail=5
+readonly n_mail=1
 
 # shellcheck disable=SC2068
 collect_arguments 4 atm zenith wobble n_max $@
@@ -42,6 +42,12 @@ for n in ${all_n}; do
     fi
 
     gro_file=$(groptics_file "${run}" "${zenith}" "${atm}" "${wobble}")
+
+    corsika_file_zip=$(corsika_file_zip "${run}" "${zenith}" "${atm}")
+    if [ ! -f "${corsika_file_zip}.bz2" ]; then
+        # printf "CORSIKA file for run %s does not exist - skipping\n" "${run}"
+        continue
+    fi
 
     if [ "${force}" = "true" ] && [ -f "${gro_file}" ]; then
         printf "Removing existing file for run: %s\n" "${run}"
@@ -68,7 +74,9 @@ for n in ${all_n}; do
         
         if [ "${do_submit}" = "true" ]; then
             # shellcheck disable=SC2086
-            qsub -P veritas -l s_cpu=23:59:00 -l h_rss=1G ${send_mail} -N "gro_${wobble}" -e "${log_err}" -o "${log_out}" "${source_dir}/runGrOptics" -run "${runs}" -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}" -src "${source_dir}"
+            qsub -P veritas -l s_cpu=23:59:00 -l h_rss=2G ${send_mail} -N "gro_${wobble}" -e "${log_err}" \
+                -o "${log_out}" "${source_dir}/runGrOptics" -run "${runs}" -zenith "${zenith}" -atm "${atm}" \
+                -wobble "${wobble}" -src "${source_dir}"
         fi
         
         nruns=0

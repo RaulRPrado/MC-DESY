@@ -58,7 +58,7 @@ done
 # shellcheck disable=SC1091,SC1090
 source "util.sh"
 # shellcheck disable=SC1091,SC1090
-source "setupMC.sh"
+source "setupMC6.sh"
 # shellcheck disable=SC1091,SC1090
 source "/afs/ifh.de/group/cta/scratch/prado/VTS/setEnv.sh" "v501_rd"
 

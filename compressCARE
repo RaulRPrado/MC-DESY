@@ -93,7 +93,7 @@ merged_care_file=$(merged_care_file "${zenith}" "${atm}" "${wobble}" "${nsb}" "$
 # tar -czvf "${compressed_care_file}" "${merged_dir}"
 # bzip2 -z "${merged_care_file}"
 
-zstd -z "${merged_care_file}"
+zstd -zf "${merged_care_file}"
 
 print_runtime "${SECONDS}"
 

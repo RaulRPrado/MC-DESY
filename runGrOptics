@@ -92,15 +92,15 @@ for run in ${run_list}; do
 
     # CORSIKA handling
     corsika_file_zip=$(corsika_file_zip "${run}" "${zenith}" "${atm}")
-    corsika_file=$(corsika_file "${run}" "${zenith}" "${atm}")
-    corsika_file_loc="${tmp_dir}/$(basename ${corsika_file})"
+    # corsika_file=$(corsika_file "${run}" "${zenith}" "${atm}")
+    corsika_file_loc="${tmp_dir}/$(basename ${corsika_file_zip})"
     echo "CORSIKA LOC " "${corsika_file_loc}"
 
-    mkdir -p "$(dirname "${corsika_file}")"
+    # mkdir -p "$(dirname "${corsika_file}")"
 
     # Unziping corsika file
     printf "CORSIKA file zip:%s\n" "${corsika_file_zip}"
-    printf "CORSIKA file:%s\n" "${corsika_file}"
+    # printf "CORSIKA file:%s\n" "${corsika_file}"
     printf "Unzipping corsika file\n"
     bunzip2 -c "${corsika_file_zip}.bz2" > "${corsika_file_loc}" || {
       printf "Problem to unzip file run: %s\n" "${run}" 
@@ -122,7 +122,10 @@ for run in ${run_list}; do
     cd "${SW_DIR}/GrOptics" || exit
 
     # shellcheck disable=SC2086
-    # echo "cmd:" ${SW_DIR}/corsikaSimulationTools/corsikaIOreader -queff 0.50 -cors "${corsika_file}" -seed "${run}" -grisu stdout -abs "${cfg_atm}" -cfg "${cfg_ioreader}" | ${SW_DIR}/TestGrOptics/GrOptics/grOptics -of "${gro_file}" -p "${gro_pilot}"
+    # echo "cmd:" ${SW_DIR}/corsikaSimulationTools/corsikaIOreader -queff 0.50 \
+        # -cors "${corsika_file}" -seed "${run}" -grisu stdout -abs "${cfg_atm}" \
+        # -cfg "${cfg_ioreader}" | ${SW_DIR}/TestGrOptics/GrOptics/grOptics \
+        # -of "${gro_file}" -p "${gro_pilot}"
 
     # shellcheck disable=SC2086
     ${SW_DIR}/corsikaSimulationTools/corsikaIOreader -queff 0.50 -cors "${corsika_file_loc}" \
@@ -130,7 +133,8 @@ for run in ${run_list}; do
         -cfg "${cfg_ioreader}" | ${SW_DIR}/GrOptics/grOptics -of "${gro_file_loc}" -p "${gro_pilot}"
       
     # Testing new corsikaIOreader  
-    # ${SW_DIR}/corsikaSimulationTools/corsikaIOreader -queff 0.50 -cors "${corsika_file}" -seed "${run}" -grisu stdout -abs "${cfg_atm}" -cfg "${cfg_ioreader}"
+    # ${SW_DIR}/corsikaSimulationTools/corsikaIOreader -queff 0.50 -cors "${corsika_file}" \
+    #    -seed "${run}" -grisu stdout -abs "${cfg_atm}" -cfg "${cfg_ioreader}"
     #| ${SW_DIR}/GrOptics/grOptics -of "${gro_file}" -p "${gro_pilot}"
 
     printf "Moving output to lustre ..."

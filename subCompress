@@ -13,31 +13,51 @@ zenith=""
 wobble=""
 mode="std"
 nsb_group="all"
+nsb_list=""
+n_merge=""
 source_dir=${PWD}
-n_merge_max=5
+n_merge_max=10
+force="true"
 
 # shellcheck disable=SC2068
-collect_arguments 6 atm zenith wobble mode nsb_group n_merge_max $@
+collect_arguments 8 atm zenith wobble mode nsb_group n_merge_max n_merge nsb_list $@
 
 atm=$(validate_atm "${atm}")
 zenith=$(validate_zenith "${zenith}")
 wobble=$(validate_wobble "${wobble}")
 mode=$(validate_mode "${mode}")
-nsb_list=$(nsb_list_from_group "${nsb_group}")
+if [ "${nsb_list}" = "" ]; then
+    nsb_list=$(nsb_list_from_group "${nsb_group}")
+fi
 
-for n_merge in $(seq 1 $n_merge_max); do
+if [ "${n_merge}" == "" ]; then
+    all_n_merge=$(seq 1 $n_merge_max)
+else
+    all_n_merge="${n_merge}"
+fi
+
+for n_merge in ${all_n_merge}; do
     printf "n merge %s\n" "${n_merge}"
 
     for nsb in ${nsb_list}; do
         # send_mail="-m ae" # splitting is necessary
         send_mail="" # splitting is necessary
+        
+        care_file=$(merged_care_file "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}" "${n_merge}")
+        if [ -f "${care_file}.zst" ] && [ "${force}" = "false" ]; then
+            echo "File ${care_file}.zst exists - skipping"
+            continue
+        fi
+
         log_err=$(compressed_care_log "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}" "err" "${n_merge}")
         log_out=$(compressed_care_log "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}" "out" "${n_merge}")
         remove_file "${log_err}" "${log_out}" || true
         mkdir -p "$(dirname "${log_out}")"
         
         # shellcheck disable=SC2086
-        qsub -P veritas -l s_cpu=05:59:59 ${send_mail} -N "comp_${wobble}" -e "${log_err}" -o "${log_out}" "${source_dir}/compressCARE" -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}" -mode "${mode}" -nsb "${nsb}" -src "${source_dir}" -n_merge "${n_merge}"
+        qsub -P veritas -l s_cpu=23:59:59 ${send_mail} -N "comp_${wobble}" -e "${log_err}" -o "${log_out}" \
+            "${source_dir}/compressCARE" -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}" \
+            -mode "${mode}" -nsb "${nsb}" -src "${source_dir}" -n_merge "${n_merge}"
     done
 
 done

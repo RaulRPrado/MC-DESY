@@ -22,6 +22,16 @@ else
     wobble_list="${wobble}"
 fi
 
+printf "CORSIKAs \n"
+corsika_dir=$(corsika_directory_zip "${zenith}" "${atm}")
+if [ -d "${corsika_dir}" ]; then
+    # shellcheck disable=SC2012
+    n=$(ls "${corsika_dir}" | wc -l)
+    printf "%s" "$n"
+    printf "\n"
+fi        
+
+
 run=$(compute_run "${zenith}" "10")
 
 for wobble in $wobble_list; do

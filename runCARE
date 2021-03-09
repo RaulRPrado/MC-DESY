@@ -122,14 +122,21 @@ for run in ${run_list}; do
         echo "Running cmd: " ${SW_DIR}/CARE/CameraAndReadout NSBRATEPERPIXEL "0 ${nsb}" HIGHGAINPULSESHAPE "0 ${care_high_gain_file}"  LOWGAINPULSESHAPE "0 ${care_low_gain_file}" --notraces --seed "${run}" --configfile "${care_config}" --outputfile "${care_file}" --inputfile "${gro_file}" --vbfrunnumber 10000 --writepedestals 1
         
         # shellcheck disable=SC2086
-        ${SW_DIR}/CARE/CameraAndReadout NSBRATEPERPIXEL "0 ${nsb}" HIGHGAINPULSESHAPE "0 ${care_high_gain_file}"  LOWGAINPULSESHAPE "0 ${care_low_gain_file}" --notraces --seed "${run}" --configfile "${care_config}" --outputfile "${care_file_loc}" --inputfile "${gro_file}" --vbfrunnumber 10000 --writepedestals 1
-        
+        ${SW_DIR}/CARE/CameraAndReadout NSBRATEPERPIXEL "0 ${nsb}" \
+            HIGHGAINPULSESHAPE "0 ${care_high_gain_file}" LOWGAINPULSESHAPE "0 ${care_low_gain_file}" \
+            --notraces --seed "${run}" --configfile "${care_config}" --outputfile "${care_file_loc}" \
+            --inputfile "${gro_file_loc}" --vbfrunnumber 10000 --writepedestals 1 || true
+
         printf "Moving output to %s\n" "${care_file}"
-        mv "${care_file_loc}.root" "${care_file}.root"
-        mv "${care_file_loc}.vbf" "${care_file}.vbf"
+        mv "${care_file_loc}.root" "${care_file}.root" || true
+        mv "${care_file_loc}.vbf" "${care_file}.vbf" || true
 
         echo "CARE DONE-------------------------------"
     done # nsb 
+
+    printf "Removing loc groptics file\n"
+    rm "${gro_file_loc}" || true
+
 done # run
 
 print_runtime "$SECONDS"

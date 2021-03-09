@@ -168,19 +168,32 @@ get_atm_number()
 validate_wobble()
 {
     # Validate wobble, return in a fixed format
-    # 2 digits of precision maximum 
+    # 2 digits of precision maximum
+    
+    if [ "$1" == "" ]; then
+        error_exit "Wobble option is invalid - aborting"
+    fi
+ 
     local wob
+    local out_wobble
     wob=$(echo "$1" | bc -l)
     if [ "$(echo "${wob} == 0" | bc -l)" = "1" ]; then
-        echo "0.0"
+        out_wobble="0.0"
     elif [ "$(echo "${wob} == 1.0" | bc -l)" = "1" ]; then
-        echo "1.0"
+        out_wobble="1.0"
     elif [ "$(echo "${wob} < 1.0" | bc -l)" = "1" ]; then
         w=${wob:0:3}
-        echo "0$w"
+        out_wobble="0$w"
     else
-        echo "${wob:0:4}"
+        out_wobble="${wob:0:4}"
     fi
+
+    if ! [[ "${out_wobble}" =~ ^("0.0"|"0.25"|"0.5"|"0.75"|"1.0"|"1.25"|"1.5"|"1.75"|"2.0")$ ]]; then
+        error_exit "Wobble option is invalid - aborting"
+    else
+        echo "${out_wobble}"
+    fi
+
 }
 
 validate_mode()
@@ -210,7 +223,8 @@ nsb_list_from_group()
     # NSb groups are a, b or c
     local group=$1
     if [ "${group}" = "a" ] || [ "${group}" = "A" ]; then
-        echo "50 75 100 130"
+        # echo "50 75 100 130"
+        echo "50 75 300"
     elif [ "${group}" = "b" ] || [ "${group}" = "B" ]; then
         echo "160 200 250 300"
     elif [ "${group}" = "c" ] || [ "${group}" = "C" ]; then
@@ -346,7 +360,8 @@ corsika_directory_zip()
     local atm_dir
     atm_dir=$(atm_directory "${atm}")
 
-    echo "/lustre/fs23/group/veritas/simulations/V6_FLWO/OSG_CORSIKA/${atm_dir}/corsika/${zenith_dir}/telfiles"    
+    echo "/lustre/fs24/group/veritas/simulations/CORSIKA/${atm_dir}/${zenith_dir}/telfiles"    
+    # echo "/lustre/fs23/group/veritas/simulations/V6_FLWO/OSG_CORSIKA/${atm_dir}/corsika/${zenith_dir}"    
 }
 
 corsika_file_zip()
@@ -369,7 +384,8 @@ corsika_directory()
     local atm_dir
     atm_dir=$(atm_directory "${atm}")
 
-    echo "/lustre/fs23/group/veritas/V6_DESY/OSG_CORSIKA/${atm_dir}/corsika/${zenith_dir}"    
+    echo "/lustre/fs24/group/veritas/simulations/CORSIKA/${atm_dir}/${zenith_dir}/telfiles"    
+    # echo "/lustre/fs23/group/veritas/V6_DESY/OSG_CORSIKA/${atm_dir}/corsika/${zenith_dir}"    
 }
 
 corsika_file()
@@ -525,7 +541,11 @@ merged_root_name()
     local zenith_dir
     zenith_dir=$(zenith_directory "${zenith}")
 
-    echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/merged/Data/gamma_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz"
+    # echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/merged/Data/gamma_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz"
+    
+    # echo "/lustre/fs18/group/cta/veritas/NSOffsetSimulations/${atm_dir}/${zenith_dir}/gamma_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz"
+    
+    echo "/lustre/fs24/group/veritas/simulations/NSOffsetSimulations/${atm_dir}/${zenith_dir}/gamma_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz"
 }
 
 merged_care_file()
@@ -578,6 +598,23 @@ merged_care_log()
         echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/merged/Log/log_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz_${n_merge}.${label}"
     fi
 }
+
+split_care_log()
+{
+    local zenith=$1
+    local atm=$2
+    local wobble=$3
+    local nsb=$4
+    local mode=$5
+    local label=$6
+    local atm_dir
+    atm_dir=$(atm_directory "${atm}")
+    local zenith_dir
+    zenith_dir=$(zenith_directory "${zenith}")
+
+    echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/split/Log/log_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz.${label}"
+}
+
 
 compressed_care_log()
 {

@@ -73,3 +73,6 @@ stops with the root prompt. These are cool drawings.
  DRAWTEL 1
 
  TESTTEL 1 PSFgraph
+
+* DEBUGBRANCHES 1
+

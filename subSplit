@@ -1,0 +1,48 @@
+#!/bin/bash
+
+set -o errexit   # abort on nonzero exitstatus
+set -o pipefail  # don't hide errors within pipes
+
+echo "Starting subSplit"
+
+# shellcheck disable=SC1090,SC1091
+source "util.sh"
+
+atm="summer"
+zenith=""
+wobble=""
+mode="std"
+nsb_group="all"
+source_dir=${PWD}
+nsb_list=""
+n_files=""
+
+# shellcheck disable=SC2068
+collect_arguments 7 atm zenith wobble mode nsb_group nsb_list n_files $@
+
+atm=$(validate_atm "${atm}")
+zenith=$(validate_zenith "${zenith}")
+wobble=$(validate_wobble "${wobble}")
+mode=$(validate_mode "${mode}")
+if [ "${nsb_list}" = "" ]; then
+    nsb_list=$(nsb_list_from_group "${nsb_group}")
+fi
+
+
+if [ "${n_files}" == "" ]; then
+    error_exit "n_files must be given"
+fi 
+
+for nsb in ${nsb_list}; do
+    # send_mail="-m ae" # splitting is necessary
+    send_mail="" # splitting is necessary
+    log_err=$(split_care_log "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}" "err")
+    log_out=$(split_care_log "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}" "out")
+    remove_file "${log_err}" "${log_out}" || true
+    mkdir -p "$(dirname "${log_out}")"
+
+    # shellcheck disable=SC2086
+    qsub -P veritas -l s_cpu=23:59:00 -l h_rss=2G -l tmpdir_size=500G ${send_mail} -N "split_${wobble}" -e "${log_err}" \
+        -o "${log_out}" "${source_dir}/splitCARE" -zenith "${zenith}" -atm "${atm}" -wobble "${wobble}" \
+        -mode "${mode}" -nsb "${nsb}" -n_files "${n_files}" -src "${source_dir}"    
+done

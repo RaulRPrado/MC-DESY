@@ -5,11 +5,11 @@ set -o pipefail  # don't hide errors within pipes
 
 SECONDS=0
 
-echo "Starting mergeCARE"
+echo "Starting splitCARE"
 
 show_help() {
     echo ""
-    echo "Syntax: ./mergeCARE [ -arg value ]"
+    echo "Syntax: ./splitCARE [ -arg value ]"
     echo "Options:"
     echo "-src                                    (source directory)"
     echo "-zenith                                 (zenith angle)"
@@ -17,9 +17,7 @@ show_help() {
     echo "-atm                                    (summer/62 or winter/61)"
     echo "-nsb                                    (list of NSB levels)"
     echo "-mode                                   (std or rhv)"
-    echo "-n_max                                  ()"
-    echo "-n_min                                  ()"
-    echo "-n_merge                                ()"
+    echo "-n_files                                ()"
     echo ""
 }
 
@@ -28,9 +26,6 @@ zenith="20"
 wobble="0.25"
 mode="std"
 nsb="200"
-n_min=0     # min run
-n_max=100000    # max run (100000) 
-n_merge=""
 
 while :; do
     case $1 in
@@ -62,16 +57,8 @@ while :; do
             mode=$2
             shift
             ;;
-        -n_max)
-            n_max=$2
-            shift
-            ;;
-        -n_min)
-            n_min=$2
-            shift
-            ;;
-        -n_merge)
-            n_merge=$2
+        -n_files)
+            n_files=$2
             shift
             ;;
         *)
@@ -85,41 +72,35 @@ echo "Source:${source_dir}"
 # shellcheck disable=SC1091,SC1090
 source "${source_dir}/util.sh"
 # shellcheck disable=SC1091,SC1090
-source "${source_dir}/setupMC6.sh"
-# shellcheck disable=SC1091,SC1090
-source "${source_dir}/loadVBF.sh"
-# shellcheck disable=SC1091,SC1090
-# source "${source_dir}/loadRoot.sh"
-source "/afs/ifh.de/group/cta/scratch/prado/VTS/setEnv.sh" "v501_rd"
-
-all_n=$(seq "${n_min}" "${n_max}")
+source "${source_dir}/setupMC.sh"
 
 atm=$(validate_atm "${atm}")
 zenith=$(validate_zenith "${zenith}")
 wobble=$(validate_wobble "${wobble}")
 mode=$(validate_mode "${mode}")
 
-files_to_merge="${source_dir}/lists/files_to_merge_${RANDOM}.lis"
-true > "${files_to_merge}"
-for n in ${all_n}; do
-    run=$(compute_run "${zenith}" "${n}")
+merged_care_file=$(merged_care_file "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
 
-    care_file=$(care_file "${run}" "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
-    if [ -f  "${care_file}.vbf" ]; then
-        echo "${care_file}.vbf" >> "${files_to_merge}"
-    fi        
+cd $(dirname "${merged_care_file}")
 
-done
+if [ ! -f  "${merged_care_file}" ]; then 
+    echo "Uncompressing files"
 
-merged_care_file=$(merged_care_file "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}" "${n_merge}")
-mkdir -p "$(dirname "${merged_care_file}")"
+    if [ -f "${merged_care_file}.bz2" ]; then
+        bzip2 -dk "${merged_care_file}.bz2"
+    elif [ -f "${merged_care_file}.zst" ]; then
+        zstd -d  "${merged_care_file}.zst"
+    else
+        error_exit "Input CARE file not found"
+    fi
 
-echo "Merging ..."
+fi
+
+echo "Splitting ..."
 printf "%s\n" "${merged_care_file}"
 
 # shellcheck disable=SC2086
-${EVNDISPSYS}/bin/mergeVBF "${files_to_merge}" "${merged_care_file}" 1
-
-rm "${files_to_merge}"
+# ${SW_DIR}/eventDisplay/v501_rd/bin/splitVBF "${merged_care_file}" "${n_files}" 1 "${wobble}"
+${SW_DIR}/eventDisplay/v501_rd/bin/splitVBF "${merged_care_file}" "${n_files}" 1
 
 print_runtime "${SECONDS}"

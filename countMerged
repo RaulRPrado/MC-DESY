@@ -10,9 +10,10 @@ atm="winter"
 zenith="20"
 mode="std"
 wobble=""
+nsb=""
 
 # shellcheck disable=SC2068
-collect_arguments 4 atm zenith mode wobble $@
+collect_arguments 5 atm zenith mode wobble nsb $@
 
 atm=$(validate_atm "${atm}")
 zenith=$(validate_zenith "${zenith}")
@@ -31,7 +32,7 @@ for wobble in ${wobble_list}; do
     merged_care_file=$(merged_care_file "${zenith}" "${atm}" "${wob}" "100" "${mode}")
     merged_care_dir=$(dirname "${merged_care_file}")
     
-    ls "${merged_care_dir}/"*"${wob}"* -lhS
-    n=$(ls "${merged_care_dir}/"*"${wob}"* | wc -l)
+    ls "${merged_care_dir}/"*"${wob}"*"_${nsb}"* -lhS
+    n=$(ls "${merged_care_dir}/"*"${wob}"*"_${nsb}"* | wc -l)
     printf "\n %s files\n" "${n}"
 done
