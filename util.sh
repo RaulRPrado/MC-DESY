@@ -223,8 +223,7 @@ nsb_list_from_group()
     # NSb groups are a, b or c
     local group=$1
     if [ "${group}" = "a" ] || [ "${group}" = "A" ]; then
-        # echo "50 75 100 130"
-        echo "50 75 300"
+        echo "50 75 100 130"
     elif [ "${group}" = "b" ] || [ "${group}" = "B" ]; then
         echo "160 200 250 300"
     elif [ "${group}" = "c" ] || [ "${group}" = "C" ]; then
@@ -284,6 +283,8 @@ groptics_file()
     zenith_dir=$(zenith_directory "${zenith}")
     
     echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/groptics/wobble${wobble}/Data/DAT${run}.root"
+
+    # echo "/lustre/fs24/group/veritas/simulations/NSOffsetSimulations/${atm_dir}/${zenith_dir}/groptics/wobble${wobble}/Data/DAT${run}.root"
 }
 
 groptics_log()
@@ -300,6 +301,9 @@ groptics_log()
     zenith_dir=$(zenith_directory "${zenith}")
     
     echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/groptics/wobble${wobble}/Log/run${run}/log_${run}.${label}"
+
+    # echo "/lustre/fs24/group/veritas/simulations/NSOffsetSimulations/${atm_dir}/${zenith_dir}/groptics/wobble${wobble}/Log/run${run}/log_${run}.${label}"
+
 }
 
 gro_pilot_file()
@@ -509,7 +513,9 @@ care_file()
     local zenith_dir
     zenith_dir=$(zenith_directory "${zenith}")
 
-    echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/care_${mode}/wobble${wobble}/Data/NSB${nsb}/CARE${run}"
+    # echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/care_${mode}/wobble${wobble}/Data/NSB${nsb}/CARE${run}"
+
+    echo "/lustre/fs24/group/veritas/simulations/NSOffsetSimulations/${atm_dir}/${zenith_dir}/care_${mode}/wobble${wobble}/Data/NSB${nsb}/CARE${run}"
 }
 
 care_log()
@@ -526,7 +532,9 @@ care_log()
     local zenith_dir
     zenith_dir=$(zenith_directory "${zenith}")
 
-    echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/care_${mode}/wobble${wobble}/Log/NSB${nsb}/log_${run}.${label}"
+    # echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/care_${mode}/wobble${wobble}/Log/NSB${nsb}/log_${run}.${label}"
+
+    echo "/lustre/fs24/group/veritas/simulations/NSOffsetSimulations/${atm_dir}/${zenith_dir}/care_${mode}/wobble${wobble}/Log/NSB${nsb}/log_${run}.${label}"
 }
 
 merged_root_name()
@@ -594,8 +602,12 @@ merged_care_log()
 
     if [ "${n_merge}" == "" ]; then
         echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/merged/Log/log_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz.${label}"
+        
+        # echo "/lustre/fs24/group/veritas/simulations/NSOffsetSimulations/${atm_dir}/${zenith_dir}/merged/Log/log_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz.${label}"
     else
         echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/merged/Log/log_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz_${n_merge}.${label}"
+
+        # echo "/lustre/fs24/group/veritas/simulations/NSOffsetSimulations/${atm_dir}/${zenith_dir}/merged/Log/log_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz_${n_merge}.${label}"
     fi
 }
 
@@ -612,7 +624,10 @@ split_care_log()
     local zenith_dir
     zenith_dir=$(zenith_directory "${zenith}")
 
-    echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/split/Log/log_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz.${label}"
+    # echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/split/Log/log_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz.${label}"
+
+    echo "/lustre/fs24/group/veritas/simulations/NSOffsetSimulations/${atm_dir}/${zenith_dir}/split/Log/log_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz.${label}"
+
 }
 
 
@@ -630,4 +645,6 @@ compressed_care_log()
     zenith_dir=$(zenith_directory "${zenith}")
 
     echo "/lustre/fs23/group/veritas/V6_DESY/${atm_dir}/${zenith_dir}/merged/Log/compressed_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz.${label}"
+
+    # echo "/lustre/fs24/group/veritas/simulations/NSOffsetSimulations/${atm_dir}/${zenith_dir}/merged/Log/compressed_V6_CARE_${mode}_${atm_dir}_zen${zenith}deg_${wobble}wob_${nsb}MHz.${label}"
 }

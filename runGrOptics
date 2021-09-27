@@ -56,6 +56,10 @@ while :; do
     shift
 done
 
+echo "DEBUG: source_dir = ${source_dir}"
+echo "DEBUG: atm = ${atm}"
+echo "DEBUG: wobble = ${wobble}"
+
 # shellcheck disable=SC1091,SC1090
 source "${source_dir}/util.sh"
 # shellcheck disable=SC1091,SC1090
@@ -110,6 +114,7 @@ for run in ${run_list}; do
     # GRO file
     gro_file=$(groptics_file "${run}" "${zenith}" "${atm}" "${wobble}")
     mkdir -p "$(dirname "${gro_file}")"
+    # chgrp -R veritas "$(dirname "${gro_file}")"
     gro_file_loc="${tmp_dir}/$(basename ${gro_file})"
 
     printf "GrOptics file: %s\n" "${gro_file}"
@@ -137,7 +142,7 @@ for run in ${run_list}; do
     #    -seed "${run}" -grisu stdout -abs "${cfg_atm}" -cfg "${cfg_ioreader}"
     #| ${SW_DIR}/GrOptics/grOptics -of "${gro_file}" -p "${gro_pilot}"
 
-    printf "Moving output to lustre ..."
+    printf "Moving output to lustre ...\n"
     mv "${gro_file_loc}" "${gro_file}"
 
     corsika_size=$(file_size "${corsika_file_loc}")

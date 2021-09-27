@@ -40,9 +40,14 @@ def check_woff(atm, zenith, wobble, nsb, pdf):
                 print('Could not open file {}'.format(filename))
                 continue
 
+            nInFile = 0
             for entry in file.showerpars:
                 if float(entry.Xoff[0]) > -99 and not float(entry.Xoff[0]) == 0.:
                     woff_rad.append(math.sqrt(entry.Xoff[0]**2 + entry.Yoff[0]**2))
+                    nInFile += 1
+                if nInFile > 10000:
+                    break
+
         except:
             print('Could not read file for run {}'.format(run))
             continue
@@ -106,7 +111,7 @@ if __name__ == '__main__':
         figName = 'figures/Woff_atm{}_ze{}_wob{}.pdf'.format(atm, zenith, wob)
 
     all_nsb = [50, 75, 100, 130, 160, 200, 250, 300, 350, 400, 450]
-    # all_nsb = [400]
+    # all_nsb = [50]
 
     with PdfPages(figName) as pdf:
         for nsb in all_nsb:

@@ -112,6 +112,8 @@ for run in ${run_list}; do
         care_file=$(care_file "${run}" "${zenith}" "${atm}" "${wobble}" "${nsb}" "${mode}")
         care_file_loc="${tmp_dir}/$(basename ${care_file})"
         mkdir -p "$(dirname "${care_file}")"
+        # chgrp -R veritas "$(dirname "${care_file}")"
+
         printf "CARE file:%s\n" "${care_file}"
         printf "CARE file (LOC):%s\n" "${care_file_loc}"
 
